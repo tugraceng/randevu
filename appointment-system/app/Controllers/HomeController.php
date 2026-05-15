@@ -13,12 +13,18 @@ use App\Models\Review;
 use App\Models\Service;
 use App\Models\Setting;
 use App\Models\Staff;
+use App\Models\CustomerPackage;
 
 class HomeController
 {
     public function index(): void
     {
         $settings = (new Setting())->all();
+        $customerPackages = [];
+        if (is_customer_logged_in()) {
+            $customerPackages = (new CustomerPackage())->forCustomer((int) customer_user()['id']);
+        }
+
         view('frontend/home', [
             'settings' => $settings,
             'sections' => (new PageSection())->allActive(),
@@ -26,24 +32,10 @@ class HomeController
             'packages' => (new Package())->allActive(),
             'staff' => (new Staff())->allActive(),
             'campaigns' => (new Campaign())->allActive(),
-            'reviews' => $this->reviews(),
-            'gallery' => $this->gallery(),
-            'faqs' => $this->faqs(),
+            'reviews' => (new Review())->allActive(),
+            'gallery' => (new Gallery())->allActive(),
+            'faqs' => (new Faq())->allActive(),
+            'customer_packages' => $customerPackages,
         ]);
-    }
-
-    private function reviews(): array
-    {
-        return db()->query('SELECT * FROM reviews WHERE status = 1 ORDER BY sort_order')->fetchAll();
-    }
-
-    private function gallery(): array
-    {
-        return db()->query('SELECT * FROM gallery WHERE status = 1 ORDER BY sort_order')->fetchAll();
-    }
-
-    private function faqs(): array
-    {
-        return db()->query('SELECT * FROM faqs WHERE status = 1 ORDER BY sort_order')->fetchAll();
     }
 }

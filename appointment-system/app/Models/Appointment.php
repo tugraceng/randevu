@@ -118,20 +118,133 @@ class Appointment extends BaseModel
             $where[] = 'a.appointment_date = ?';
             $params[] = $filters['date'];
         }
+        if (!empty($filters['date_from'])) {
+            $where[] = 'a.appointment_date >= ?';
+            $params[] = $filters['date_from'];
+        }
+        if (!empty($filters['date_to'])) {
+            $where[] = 'a.appointment_date <= ?';
+            $params[] = $filters['date_to'];
+        }
+        if (!empty($filters['service_id'])) {
+            $where[] = 'a.service_id = ?';
+            $params[] = $filters['service_id'];
+        }
+        if (!empty($filters['staff_id'])) {
+            $where[] = 'a.staff_id = ?';
+            $params[] = $filters['staff_id'];
+        }
+        if (!empty($filters['payment_status'])) {
+            $where[] = 'a.payment_status = ?';
+            $params[] = $filters['payment_status'];
+        }
+        if (isset($filters['package_only']) && $filters['package_only'] !== '') {
+            $where[] = $filters['package_only'] ? 'a.customer_package_id IS NOT NULL' : 'a.customer_package_id IS NULL';
+        }
+        if (!empty($filters['search'])) {
+            $where[] = '(c.first_name LIKE ? OR c.last_name LIKE ? OR c.phone LIKE ? OR c.email LIKE ?)';
+            $q = '%' . $filters['search'] . '%';
+            $params = array_merge($params, [$q, $q, $q, $q]);
+        }
         $whereSql = implode(' AND ', $where);
         $offset = ($page - 1) * $perPage;
-        $count = $this->db->prepare("SELECT COUNT(*) FROM appointments a WHERE $whereSql");
+        $count = $this->db->prepare("SELECT COUNT(*) FROM appointments a JOIN customers c ON c.id = a.customer_id WHERE $whereSql");
         $count->execute($params);
         $total = (int) $count->fetchColumn();
 
-        $sql = "SELECT a.*, CONCAT(c.first_name,' ',c.last_name) AS customer_name, s.name AS service_name, st.name AS staff_name
+        $sql = "SELECT a.*, CONCAT(c.first_name,' ',c.last_name) AS customer_name, c.phone AS customer_phone,
+                s.name AS service_name, st.name AS staff_name,
+                cp.remaining_sessions, pk.name AS package_name
                 FROM appointments a
                 JOIN customers c ON c.id = a.customer_id
                 JOIN services s ON s.id = a.service_id
                 LEFT JOIN staff st ON st.id = a.staff_id
-                WHERE $whereSql ORDER BY a.appointment_date DESC LIMIT $perPage OFFSET $offset";
+                LEFT JOIN customer_packages cp ON cp.id = a.customer_package_id
+                LEFT JOIN packages pk ON pk.id = cp.package_id
+                WHERE $whereSql ORDER BY a.appointment_date DESC, a.start_time DESC LIMIT $perPage OFFSET $offset";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
-        return ['data' => $stmt->fetchAll(), 'total' => $total];
+        return ['data' => $stmt->fetchAll(), 'total' => $total, 'page' => $page, 'per_page' => $perPage];
+    }
+
+    public function countToday(): int
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM appointments WHERE appointment_date = CURDATE()");
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function countTodayByStatus(string $status): int
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM appointments WHERE appointment_date = CURDATE() AND status = ?");
+        $stmt->execute([$status]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function chartDaily(int $days = 7): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT appointment_date AS d, COUNT(*) AS cnt FROM appointments
+             WHERE appointment_date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+             GROUP BY appointment_date ORDER BY appointment_date"
+        );
+        $stmt->execute([$days]);
+        return $stmt->fetchAll();
+    }
+
+    public function chartByService(): array
+    {
+        return $this->db->query(
+            "SELECT s.name AS label, COUNT(*) AS cnt FROM appointments a
+             JOIN services s ON s.id = a.service_id
+             WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+             GROUP BY s.id ORDER BY cnt DESC LIMIT 8"
+        )->fetchAll();
+    }
+
+    public function chartByStaff(): array
+    {
+        return $this->db->query(
+            "SELECT COALESCE(st.name,'Atanmamış') AS label, COUNT(*) AS cnt FROM appointments a
+             LEFT JOIN staff st ON st.id = a.staff_id
+             WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+             GROUP BY a.staff_id ORDER BY cnt DESC LIMIT 8"
+        )->fetchAll();
+    }
+
+    public function forCalendar(string $month): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT a.id, a.appointment_date, a.start_time, a.status,
+                    CONCAT(c.first_name,' ',c.last_name) AS title, s.name AS service_name
+             FROM appointments a
+             JOIN customers c ON c.id = a.customer_id
+             JOIN services s ON s.id = a.service_id
+             WHERE DATE_FORMAT(a.appointment_date, '%Y-%m') = ?
+             ORDER BY a.appointment_date, a.start_time"
+        );
+        $stmt->execute([$month]);
+        return $stmt->fetchAll();
+    }
+
+    public function update(int $id, array $d): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE appointments SET customer_id=?, service_id=?, staff_id=?, customer_package_id=?,
+             appointment_date=?, start_time=?, end_time=?, status=?, payment_required=?, payment_status=?,
+             deposit_amount=?, notes=? WHERE id=?'
+        );
+        $stmt->execute([
+            $d['customer_id'], $d['service_id'], $d['staff_id'] ?? null, $d['customer_package_id'] ?? null,
+            $d['appointment_date'], $d['start_time'], $d['end_time'], $d['status'],
+            $d['payment_required'] ?? 0, $d['payment_status'] ?? 'not_required',
+            $d['deposit_amount'] ?? 0, $d['notes'] ?? null, $id,
+        ]);
+    }
+
+    public function updateNotes(int $id, string $notes): void
+    {
+        $stmt = $this->db->prepare('UPDATE appointments SET notes = ? WHERE id = ?');
+        $stmt->execute([$notes, $id]);
     }
 }

@@ -1,80 +1,39 @@
 :root {
-  --primary: #0066e6;
-  --primary-dark: #0052b8;
-  --sidebar-bg: #0f172a;
-  --sidebar-width: 260px;
+  --admin-sidebar: #0f172a;
+  --admin-accent: #4f46e5;
+  --admin-radius: 12px;
 }
-
-body.admin-body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: #f1f5f9;
-  margin: 0;
-}
-
+.admin-body { background: #f1f5f9; }
 .admin-sidebar {
-  width: var(--sidebar-width);
-  background: var(--sidebar-bg);
-  min-height: 100vh;
-  position: sticky;
-  top: 0;
+  width: 260px; min-height: 100vh; background: var(--admin-sidebar);
+  position: fixed; left: 0; top: 0; z-index: 1040; transition: transform .3s;
+  display: flex; flex-direction: column;
 }
-
+.admin-main { margin-left: 260px; min-width: 0; }
 .admin-sidebar .nav-link {
-  color: rgba(255,255,255,.75);
-  border-radius: 8px;
-  margin-bottom: 4px;
-  padding: .6rem 1rem;
+  color: rgba(255,255,255,.7); border-radius: 10px; margin-bottom: 2px; padding: .6rem .85rem;
 }
-
-.admin-sidebar .nav-link:hover,
-.admin-sidebar .nav-link.active {
-  background: var(--primary);
-  color: #fff;
+.admin-sidebar .nav-link:hover, .admin-sidebar .nav-link.active {
+  background: rgba(255,255,255,.1); color: #fff;
 }
-
-.admin-main {
-  background: #f1f5f9;
+.admin-topbar { position: sticky; top: 0; z-index: 1030; }
+.table-card, .stat-card {
+  background: #fff; border-radius: var(--admin-radius);
+  box-shadow: 0 1px 3px rgba(15,23,42,.06); border: none;
 }
-
-.stat-card {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.08);
-  transition: transform .2s;
+.stat-card .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--admin-accent); }
+.stat-card.stat-warning .stat-value { color: #d97706; }
+.stat-card.stat-success .stat-value { color: #059669; }
+.stat-card.stat-danger .stat-value { color: #dc2626; }
+.filter-bar { background: #fff; border-radius: var(--admin-radius); padding: 1rem; margin-bottom: 1rem; }
+.appointment-row-actions .btn { padding: .2rem .45rem; font-size: .8rem; }
+.admin-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1035;
 }
-
-.stat-card:hover {
-  transform: translateY(-2px);
+@media (max-width: 991px) {
+  .admin-sidebar { transform: translateX(-100%); }
+  .admin-sidebar.open { transform: translateX(0); }
+  .admin-main { margin-left: 0; }
+  .admin-overlay.show { display: block; }
 }
-
-.stat-card .stat-value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.table-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.08);
-  overflow: hidden;
-}
-
-.badge-pending { background: #fef3c7; color: #b45309; }
-.badge-approved { background: #dbeafe; color: #1d4ed8; }
-.badge-completed { background: #d1fae5; color: #047857; }
-.badge-cancelled { background: #fee2e2; color: #b91c1c; }
-
-.integration-card {
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.status-dot.connected { background: #22c55e; }
-.status-dot.warning { background: #eab308; }
+.chart-box { background: #fff; border-radius: var(--admin-radius); padding: 1.25rem; height: 100%; }

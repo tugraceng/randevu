@@ -37,4 +37,40 @@ class AdminPaymentController
         flash('success', 'Manuel ödeme kaydedildi.');
         redirect(admin_url('?route=payments'));
     }
+
+    public function show(): void
+    {
+        require_admin();
+        $id = (int) ($_GET['id'] ?? 0);
+        $payment = (new Payment())->find($id);
+        if (!$payment) {
+            flash('error', 'Ödeme bulunamadı.');
+            redirect(admin_url('?route=payments'));
+        }
+        $customer = (new Customer())->find((int) $payment['customer_id']);
+        view('admin/payments/show', [
+            'title' => 'Ödeme #' . $id,
+            'payment' => $payment,
+            'customer' => $customer,
+        ]);
+    }
+
+    public function updateStatus(): void
+    {
+        require_admin();
+        if (!verify_csrf()) {
+            csrf_abort();
+        }
+        $id = (int) $_POST['id'];
+        $status = $_POST['status'] ?? 'pending';
+        (new Payment())->updateStatus($id, $status);
+        if ($status === 'paid') {
+            $p = (new Payment())->find($id);
+            if ($p && $p['customer_package_id']) {
+                (new \App\Models\CustomerPackage())->activate((int) $p['customer_package_id'], $id);
+            }
+        }
+        flash('success', 'Ödeme durumu güncellendi.');
+        redirect(admin_url('?route=payments/show&id=' . $id));
+    }
 }

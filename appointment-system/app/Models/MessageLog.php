@@ -28,4 +28,48 @@ class MessageLog extends BaseModel
         );
         $stmt->execute([$status, $payload, $providerId, $id]);
     }
+
+    public function paginate(int $page = 1, int $perPage = 20, ?string $channel = null): array
+    {
+        $where = '1=1';
+        $params = [];
+        if ($channel) {
+            $where .= ' AND channel = ?';
+            $params[] = $channel;
+        }
+        $offset = ($page - 1) * $perPage;
+        $count = $this->db->prepare("SELECT COUNT(*) FROM message_logs WHERE $where");
+        $count->execute($params);
+        $total = (int) $count->fetchColumn();
+        $stmt = $this->db->prepare("SELECT * FROM message_logs WHERE $where ORDER BY id DESC LIMIT $perPage OFFSET $offset");
+        $stmt->execute($params);
+        return ['data' => $stmt->fetchAll(), 'total' => $total];
+    }
+
+    public function countByChannel(string $channel, ?string $since = null): int
+    {
+        $sql = "SELECT COUNT(*) FROM message_logs WHERE channel = ? AND status IN ('sent','delivered')";
+        $params = [$channel];
+        if ($since) {
+            $sql .= ' AND created_at >= ?';
+            $params[] = $since;
+        }
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function countThisMonth(): array
+    {
+        $rows = $this->db->query(
+            "SELECT channel, COUNT(*) AS cnt FROM message_logs
+             WHERE MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())
+             AND status IN ('sent','delivered') GROUP BY channel"
+        )->fetchAll();
+        $out = ['email' => 0, 'sms' => 0, 'whatsapp' => 0];
+        foreach ($rows as $r) {
+            $out[$r['channel']] = (int) $r['cnt'];
+        }
+        return $out;
+    }
 }

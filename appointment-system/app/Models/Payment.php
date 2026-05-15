@@ -74,4 +74,42 @@ class Payment extends BaseModel
             "SELECT COALESCE(SUM(amount),0) FROM payments WHERE status='paid' AND MONTH(paid_at)=MONTH(CURRENT_DATE()) AND YEAR(paid_at)=YEAR(CURRENT_DATE())"
         )->fetchColumn();
     }
+
+    public function countPending(): int
+    {
+        return (int) $this->db->query("SELECT COUNT(*) FROM payments WHERE status='pending'")->fetchColumn();
+    }
+
+    public function paginate(int $page = 1, int $perPage = 20, ?string $status = null): array
+    {
+        $where = '1=1';
+        $params = [];
+        if ($status) {
+            $where .= ' AND p.status = ?';
+            $params[] = $status;
+        }
+        $offset = ($page - 1) * $perPage;
+        $count = $this->db->prepare("SELECT COUNT(*) FROM payments p WHERE $where");
+        $count->execute($params);
+        $total = (int) $count->fetchColumn();
+        $sql = "SELECT p.*, CONCAT(c.first_name,' ',c.last_name) AS customer_name
+                FROM payments p JOIN customers c ON c.id = p.customer_id
+                WHERE $where ORDER BY p.id DESC LIMIT $perPage OFFSET $offset";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return ['data' => $stmt->fetchAll(), 'total' => $total];
+    }
+
+    public function chartByStatus(): array
+    {
+        return $this->db->query(
+            "SELECT status AS label, COUNT(*) AS cnt FROM payments GROUP BY status"
+        )->fetchAll();
+    }
+
+    public function updateStatus(int $id, string $status): void
+    {
+        $stmt = $this->db->prepare('UPDATE payments SET status = ? WHERE id = ?');
+        $stmt->execute([$status, $id]);
+    }
 }

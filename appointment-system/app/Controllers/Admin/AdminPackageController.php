@@ -44,4 +44,40 @@ class AdminPackageController
         flash('success', 'Paket kaydedildi.');
         redirect(admin_url('?route=packages'));
     }
+
+    public function show(): void
+    {
+        require_admin();
+        $id = (int) ($_GET['id'] ?? 0);
+        $cp = (new \App\Models\CustomerPackage())->find($id);
+        if (!$cp) {
+            flash('error', 'Paket kaydı bulunamadı.');
+            redirect(admin_url('?route=packages'));
+        }
+        $logs = (new \App\Services\PackageSessionService())->sessionLogs($id);
+        $aptStmt = db()->prepare(
+            'SELECT a.*, s.name AS service_name FROM appointments a
+             JOIN services s ON s.id = a.service_id WHERE a.customer_package_id = ? ORDER BY a.appointment_date DESC'
+        );
+        $aptStmt->execute([$id]);
+        view('admin/packages/show', [
+            'title' => 'Paket Detay',
+            'package' => $cp,
+            'logs' => $logs,
+            'appointments' => $aptStmt->fetchAll(),
+        ]);
+    }
+
+    public function adjustSession(): void
+    {
+        require_admin();
+        if (!verify_csrf()) {
+            csrf_abort();
+        }
+        $cpId = (int) $_POST['customer_package_id'];
+        $delta = (int) $_POST['delta'];
+        $result = (new \App\Services\PackageSessionService())->manualAdjust($cpId, $delta, trim($_POST['note'] ?? ''));
+        flash($result['success'] ? 'success' : 'error', $result['message'] ?? 'Seans güncellendi.');
+        redirect(admin_url('?route=packages/show&id=' . $cpId));
+    }
 }

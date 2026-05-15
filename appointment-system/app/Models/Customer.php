@@ -108,4 +108,21 @@ class Customer extends BaseModel
             "SELECT COUNT(*) FROM customers WHERE MONTH(created_at)=MONTH(CURRENT_DATE()) AND YEAR(created_at)=YEAR(CURRENT_DATE())"
         )->fetchColumn();
     }
+
+    public function setBlacklist(int $id, bool $blacklisted): void
+    {
+        $stmt = $this->db->prepare('UPDATE customers SET is_blacklisted = ? WHERE id = ?');
+        $stmt->execute([$blacklisted ? 1 : 0, $id]);
+    }
+
+    public function update(int $id, array $data): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE customers SET first_name=?, last_name=?, phone=?, email=?, status=? WHERE id=?'
+        );
+        $stmt->execute([
+            $data['first_name'], $data['last_name'], $data['phone'] ?? null,
+            $data['email'], $data['status'] ?? 1, $id,
+        ]);
+    }
 }

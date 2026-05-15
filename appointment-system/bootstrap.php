@@ -20,6 +20,7 @@ require_once APP_PATH . '/Helpers/csrf.php';
 require_once APP_PATH . '/Helpers/auth.php';
 require_once APP_PATH . '/Helpers/response.php';
 require_once APP_PATH . '/Helpers/upload.php';
+require_once APP_PATH . '/Helpers/layout.php';
 
 $config = require CONFIG_PATH . '/app.php';
 date_default_timezone_set($config['timezone'] ?? 'Europe/Istanbul');

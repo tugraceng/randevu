@@ -83,4 +83,32 @@ class PackageSessionService
         );
         $stmt->execute([$cpId, $appointmentId, $action, $count, $note]);
     }
+
+    public function manualAdjust(int $cpId, int $delta, string $note): array
+    {
+        $cp = (new CustomerPackage())->find($cpId);
+        if (!$cp) {
+            return ['success' => false, 'message' => 'Paket bulunamadı.'];
+        }
+        $remaining = (int) $cp['remaining_sessions'] + $delta;
+        $used = (int) $cp['used_sessions'] - $delta;
+        if ($remaining < 0 || $used < 0) {
+            return ['success' => false, 'message' => 'Geçersiz seans işlemi.'];
+        }
+        $status = $remaining <= 0 ? 'completed' : 'active';
+        (new CustomerPackage())->updateSessions($cpId, $used, $remaining, $status);
+        $action = $delta > 0 ? 'manual_add' : 'manual_remove';
+        $this->log($cpId, null, $action, abs($delta), $note ?: 'Manuel seans düzenleme');
+        log_system('package_session_adjust', "Paket #$cpId delta $delta", 'admin', admin_user()['id'] ?? null);
+        return ['success' => true];
+    }
+
+    public function sessionLogs(int $cpId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT * FROM package_session_logs WHERE customer_package_id = ? ORDER BY id DESC'
+        );
+        $stmt->execute([$cpId]);
+        return $stmt->fetchAll();
+    }
 }

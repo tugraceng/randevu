@@ -8,7 +8,7 @@
 <div class="table-card p-3 mb-4"><h6>Müşteri Listesi</h6>
 <table class="table"><thead><tr><th>Müşteri</th><th>Aktif Paket</th><th>Kalan Seans</th><th>Ödeme</th></tr></thead>
 <tbody><?php foreach ($customers['data'] as $c): ?>
-<tr><td><strong><?= e($c['first_name'].' '.$c['last_name']) ?></strong><br><small><?= e($c['email']) ?></small></td>
+<tr><td><a href="<?= admin_url('?route=customers/show&id=' . $c['id']) ?>" class="text-decoration-none"><strong><?= e($c['first_name'].' '.$c['last_name']) ?></strong></a><br><small><?= e($c['email']) ?></small></td>
 <td><?= e($c['active_package'] ?? '-') ?></td>
 <td><?php $rem=(int)($c['remaining_sessions']??0); ?>
 <div class="progress" style="height:8px"><div class="progress-bar bg-<?= $rem<=1?'danger':'primary' ?>" style="width:<?= min(100,$rem*10) ?>%"></div></div>
