@@ -1,0 +1,17 @@
+{
+    "name": "randevu/appointment-system",
+    "description": "Multi-sector online appointment management system",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/Helpers/functions.php"
+        ]
+    }
+}

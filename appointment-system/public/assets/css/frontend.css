@@ -1,0 +1,101 @@
+:root {
+  --primary: #0066e6;
+  --primary-dark: #0052b8;
+  --dark: #0f172a;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #334155;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--dark) !important;
+}
+
+.hero-section {
+  min-height: 85vh;
+  background: linear-gradient(135deg, rgba(0,102,230,.85), rgba(15,23,42,.9)),
+    url('https://images.unsplash.com/photo-1629909613654-28e377c37b72?w=1600') center/cover;
+  color: #fff;
+  display: flex;
+  align-items: center;
+}
+
+.hero-section h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+}
+
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.section-title {
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.service-card, .package-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.08);
+  transition: transform .25s, box-shadow .25s;
+  height: 100%;
+}
+
+.service-card:hover, .package-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,102,230,.15);
+}
+
+.package-card.featured {
+  border: 2px solid var(--primary);
+  transform: scale(1.03);
+}
+
+.package-card .badge-popular {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary);
+  color: #fff;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: .75rem;
+}
+
+.stats-bar {
+  background: var(--dark);
+  color: #fff;
+  padding: 3rem 0;
+}
+
+.stats-bar .stat-num {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.team-card img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+#appointment {
+  background: #f8fafc;
+}
+
+footer {
+  background: #e8f0fe;
+  padding: 2rem 0;
+}
