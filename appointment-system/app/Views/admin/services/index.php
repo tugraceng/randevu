@@ -1,19 +1,118 @@
 <?php require APP_PATH . '/Views/admin/partials/header.php'; ?>
-<div class="d-flex justify-content-between mb-3">
-    <p class="text-muted mb-0">Aktif hizmetleri yönetin</p>
-    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#serviceModal">+ Yeni Hizmet</button>
+
+<div class="section-title-bar">
+    <div>
+        <h5>Hizmetler</h5>
+        <small class="text-muted">Müşterilerinize sunduğunuz hizmetler ve fiyat listesi</small>
+    </div>
+    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#serviceModal">
+        <i class="bi bi-plus-lg me-1"></i> Yeni Hizmet
+    </button>
 </div>
-<div class="table-card"><table class="table mb-0"><thead><tr><th>Hizmet</th><th>Süre</th><th>Fiyat</th><th>Durum</th></tr></thead>
-<tbody><?php foreach ($services as $s): ?><tr>
-<td><?= e($s['name']) ?></td><td><?= (int)$s['duration_minutes'] ?> dk</td><td><?= format_money((float)$s['price']) ?></td>
-<td><span class="badge bg-<?= $s['status']?'success':'secondary' ?>"><?= $s['status']?'Aktif':'Pasif' ?></span></td>
-</tr><?php endforeach; ?></tbody></table></div>
-<div class="modal fade" id="serviceModal"><div class="modal-dialog"><form method="post" action="<?= admin_url('?route=services/save') ?>" class="modal-content">
-<?= csrf_field() ?><div class="modal-header"><h5>Yeni Hizmet</h5></div><div class="modal-body">
-<input class="form-control mb-2" name="name" placeholder="Ad" required>
-<textarea class="form-control mb-2" name="description" placeholder="Açıklama"></textarea>
-<input class="form-control mb-2" name="duration_minutes" type="number" value="30" placeholder="Süre (dk)">
-<input class="form-control mb-2" name="price" type="number" step="0.01" placeholder="Fiyat">
-<input class="form-control mb-2" name="deposit_price" type="number" step="0.01" placeholder="Kapora">
-</div><div class="modal-footer"><button class="btn btn-primary">Kaydet</button></div></form></div></div>
+
+<div class="row g-3 mb-4">
+    <?php foreach ($services as $s): ?>
+    <div class="col-md-6 col-xl-4">
+        <div class="panel h-100">
+            <?php if (!empty($s['image'])): ?>
+            <div style="height:140px;overflow:hidden;border-radius:var(--radius) var(--radius) 0 0;">
+                <img src="<?= base_url(e($s['image'])) ?>" alt="<?= e($s['name']) ?>" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <?php endif; ?>
+            <div class="panel-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0"><?= e($s['name']) ?></h6>
+                    <span class="badge <?= !empty($s['status']) ? 'bg-success' : 'bg-secondary' ?>">
+                        <?= !empty($s['status']) ? 'Aktif' : 'Pasif' ?>
+                    </span>
+                </div>
+                <p class="text-muted small mb-3"><?= e($s['description'] ?? '') ?></p>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="chip"><i class="bi bi-clock"></i><?= (int)$s['duration_minutes'] ?> dk</span>
+                    <span class="chip" style="background:rgba(16,185,129,.12); color:var(--success);">
+                        <i class="bi bi-tag"></i><?= format_money((float)$s['price']) ?>
+                    </span>
+                    <?php if (!empty($s['deposit_price'])): ?>
+                    <span class="chip chip-muted"><i class="bi bi-cash-coin"></i>Kapora <?= format_money((float)$s['deposit_price']) ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#serviceModal-<?= (int)$s['id'] ?>">
+                        <i class="bi bi-pencil"></i> Düzenle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit modal -->
+        <div class="modal fade" id="serviceModal-<?= (int)$s['id'] ?>" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <form method="post" action="<?= admin_url('?route=services/save') ?>" class="modal-content" enctype="multipart/form-data">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="id" value="<?= (int)$s['id'] ?>">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Hizmet Düzenle</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body row g-3">
+                        <div class="col-md-6"><label class="form-label">Ad</label><input name="name" class="form-control" value="<?= e($s['name']) ?>" required></div>
+                        <div class="col-md-3"><label class="form-label">Süre (dk)</label><input name="duration_minutes" type="number" class="form-control" value="<?= (int)$s['duration_minutes'] ?>"></div>
+                        <div class="col-md-3"><label class="form-label">Sıra</label><input name="sort_order" type="number" class="form-control" value="<?= (int)($s['sort_order'] ?? 0) ?>"></div>
+                        <div class="col-md-6"><label class="form-label">Fiyat</label><input name="price" type="number" step="0.01" class="form-control" value="<?= e($s['price']) ?>"></div>
+                        <div class="col-md-6"><label class="form-label">Kapora</label><input name="deposit_price" type="number" step="0.01" class="form-control" value="<?= e($s['deposit_price'] ?? 0) ?>"></div>
+                        <div class="col-12"><label class="form-label">Açıklama</label><textarea name="description" class="form-control" rows="3"><?= e($s['description'] ?? '') ?></textarea></div>
+                        <div class="col-md-6"><label class="form-label">Görsel</label><input type="file" name="image" class="form-control" accept="image/*"></div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check"><input type="checkbox" name="status" value="1" class="form-check-input" id="svc<?= (int)$s['id'] ?>Active" <?= !empty($s['status']) ? 'checked' : '' ?>><label class="form-check-label" for="svc<?= (int)$s['id'] ?>Active">Aktif</label></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">İptal</button>
+                        <button class="btn btn-primary">Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php if (empty($services)): ?>
+    <div class="col-12">
+        <div class="empty-state">
+            <div class="icon"><i class="bi bi-briefcase"></i></div>
+            <h6>Henüz hizmet yok</h6>
+            <p>"Yeni Hizmet" butonu ile ilk hizmetinizi tanımlayın.</p>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+<!-- Create modal -->
+<div class="modal fade" id="serviceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <form method="post" action="<?= admin_url('?route=services/save') ?>" class="modal-content" enctype="multipart/form-data">
+            <?= csrf_field() ?>
+            <div class="modal-header">
+                <h5 class="modal-title">Yeni Hizmet</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body row g-3">
+                <div class="col-md-6"><label class="form-label">Ad *</label><input name="name" class="form-control" required></div>
+                <div class="col-md-3"><label class="form-label">Süre (dk)</label><input name="duration_minutes" type="number" class="form-control" value="30"></div>
+                <div class="col-md-3"><label class="form-label">Sıra</label><input name="sort_order" type="number" class="form-control" value="0"></div>
+                <div class="col-md-6"><label class="form-label">Fiyat *</label><input name="price" type="number" step="0.01" class="form-control" required></div>
+                <div class="col-md-6"><label class="form-label">Kapora</label><input name="deposit_price" type="number" step="0.01" class="form-control" value="0"></div>
+                <div class="col-12"><label class="form-label">Açıklama</label><textarea name="description" class="form-control" rows="3"></textarea></div>
+                <div class="col-md-6"><label class="form-label">Görsel</label><input type="file" name="image" class="form-control" accept="image/*"></div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <div class="form-check"><input type="checkbox" name="status" value="1" class="form-check-input" id="svcActive" checked><label class="form-check-label" for="svcActive">Aktif</label></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">İptal</button>
+                <button class="btn btn-primary">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <?php require APP_PATH . '/Views/admin/partials/footer.php'; ?>

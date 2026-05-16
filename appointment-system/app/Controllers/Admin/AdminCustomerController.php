@@ -29,6 +29,70 @@ class AdminCustomerController
         ]);
     }
 
+    public function create(): void
+    {
+        require_admin();
+        if (!verify_csrf()) {
+            csrf_abort();
+        }
+
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $ajax = !empty($_POST['ajax']) || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'));
+
+        if ($email && (new Customer())->findByEmail($email)) {
+            $msg = 'Bu e-posta adresi zaten kayıtlı.';
+            if ($ajax) {
+                json_response(['success' => false, 'message' => $msg]);
+            }
+            flash('error', $msg);
+            redirect($_POST['redirect'] ?? admin_url('?route=customers'));
+        }
+
+        if ($phone && (new Customer())->findByPhone($phone)) {
+            $msg = 'Bu telefon numarası zaten kayıtlı.';
+            if ($ajax) {
+                json_response(['success' => false, 'message' => $msg]);
+            }
+            flash('error', $msg);
+            redirect($_POST['redirect'] ?? admin_url('?route=customers'));
+        }
+
+        $plainPassword = trim($_POST['password'] ?? '');
+        if ($plainPassword === '') {
+            $plainPassword = bin2hex(random_bytes(4));
+        }
+
+        $id = (new Customer())->createByAdmin([
+            'first_name' => trim($_POST['first_name'] ?? ''),
+            'last_name' => trim($_POST['last_name'] ?? ''),
+            'phone' => $phone ?: null,
+            'email' => $email,
+            'password' => password_hash($plainPassword, PASSWORD_DEFAULT),
+            'auto_verify' => !empty($_POST['verify_email']),
+            'sms_permission' => (int) ($_POST['sms_permission'] ?? 1),
+            'whatsapp_permission' => (int) ($_POST['whatsapp_permission'] ?? 1),
+        ]);
+
+        log_system('customer_created', 'Admin müşteri oluşturdu #' . $id, 'admin', admin_user()['id'] ?? null);
+
+        $label = trim($_POST['first_name'] . ' ' . $_POST['last_name']);
+        if ($ajax) {
+            json_response([
+                'success' => true,
+                'message' => 'Müşteri kaydı oluşturuldu.',
+                'customer' => [
+                    'id' => $id,
+                    'label' => $label . ($phone ? ' — ' . $phone : ''),
+                    'temp_password' => !empty($_POST['show_password']) ? $plainPassword : null,
+                ],
+            ]);
+        }
+
+        flash('success', 'Müşteri oluşturuldu.' . (empty($_POST['password']) ? ' Geçici şifre: ' . $plainPassword : ''));
+        redirect($_POST['redirect'] ?? admin_url('?route=customers/show&id=' . $id));
+    }
+
     public function assignPackage(): void
     {
         require_admin();

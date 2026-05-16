@@ -33,6 +33,7 @@ $router->post('/staff/save', [AdminStaffController::class, 'save']);
 
 $router->get('/customers', [AdminCustomerController::class, 'index']);
 $router->get('/customers/show', [AdminCustomerController::class, 'show']);
+$router->post('/customers/create', [AdminCustomerController::class, 'create']);
 $router->post('/customers/save', [AdminCustomerController::class, 'save']);
 $router->post('/customers/package', [AdminCustomerController::class, 'assignPackage']);
 $router->post('/customers/note', [AdminCustomerController::class, 'addNote']);

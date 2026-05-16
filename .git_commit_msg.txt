@@ -1,0 +1,7 @@
+Polish customer panel, finalize admin content/campaigns, modernize auth
+
+- Rebuild customer panel layout (sidebar, topbar) and modernize dashboard, appointments, packages, payments and profile views with KPI cards, loyalty card and stepper-based booking flow
+- Redesign admin/customer auth screens (login/register) with branded card layout
+- Rebuild admin/campaigns as visual cards with collapsible new-campaign panel
+- Rebuild admin/content as tabbed UI (Sections / FAQ / Gallery / Reviews)
+- Update README with full UI/UX overhaul changelog (design language, frontend, admin and customer modules)

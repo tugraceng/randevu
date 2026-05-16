@@ -49,4 +49,29 @@ class Staff extends BaseModel
         $stmt->execute([$staffId]);
         return array_column($stmt->fetchAll(), 'service_id');
     }
+
+    public function create(array $data): int
+    {
+        $stmt = $this->db->prepare(
+            'INSERT INTO staff (name, title, bio, phone, email, photo, status) VALUES (?,?,?,?,?,?,?)'
+        );
+        $stmt->execute([
+            $data['name'], $data['title'] ?? null, $data['bio'] ?? null,
+            $data['phone'] ?? null, $data['email'] ?? null, $data['photo'] ?? null,
+            $data['status'] ?? 1,
+        ]);
+        return (int) $this->db->lastInsertId();
+    }
+
+    public function update(int $id, array $data): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE staff SET name=?, title=?, bio=?, phone=?, email=?, photo=?, status=? WHERE id=?'
+        );
+        $stmt->execute([
+            $data['name'], $data['title'] ?? null, $data['bio'] ?? null,
+            $data['phone'] ?? null, $data['email'] ?? null, $data['photo'] ?? null,
+            $data['status'] ?? 1, $id,
+        ]);
+    }
 }

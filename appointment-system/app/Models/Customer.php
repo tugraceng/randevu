@@ -47,6 +47,42 @@ class Customer extends BaseModel
         return (int) $this->db->lastInsertId();
     }
 
+    /** Admin panelinden müşteri kaydı (randevu sırasında veya müşteri listesinden). */
+    public function createByAdmin(array $data): int
+    {
+        $autoVerify = !empty($data['auto_verify']);
+        $stmt = $this->db->prepare(
+            'INSERT INTO customers (first_name, last_name, phone, email, password, verification_token, email_verified_at, sms_permission, whatsapp_permission, marketing_permission, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)'
+        );
+        $stmt->execute([
+            $data['first_name'],
+            $data['last_name'],
+            $data['phone'] ?? null,
+            $data['email'],
+            $data['password'],
+            $autoVerify ? null : ($data['verification_token'] ?? null),
+            $autoVerify ? date('Y-m-d H:i:s') : null,
+            $data['sms_permission'] ?? 1,
+            $data['whatsapp_permission'] ?? 1,
+            $data['marketing_permission'] ?? 0,
+        ]);
+        return (int) $this->db->lastInsertId();
+    }
+
+    public function findByPhone(string $phone): ?array
+    {
+        $phone = preg_replace('/\D/', '', $phone);
+        if ($phone === '') {
+            return null;
+        }
+        $stmt = $this->db->prepare(
+            "SELECT * FROM customers WHERE REPLACE(REPLACE(REPLACE(phone,' ',''),'-',''),'+','') LIKE ? LIMIT 1"
+        );
+        $stmt->execute(['%' . $phone . '%']);
+        return $stmt->fetch() ?: null;
+    }
+
     public function verifyEmail(int $id): void
     {
         $stmt = $this->db->prepare(
