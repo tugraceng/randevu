@@ -550,6 +550,7 @@ $trust = [
 <?php require APP_PATH . '/Views/frontend/partials/footer.php'; ?>
 <?php require APP_PATH . '/Views/frontend/partials/appointment-modal.php'; ?>
 <?php require APP_PATH . '/Views/frontend/partials/auth-drawer.php'; ?>
+<?php require APP_PATH . '/Views/partials/tgrsoft-badge.php'; ?>
 
 <?php if ($showWa): ?>
 <a href="https://wa.me/<?= e($wa) ?>" class="floating-wa" target="_blank" rel="noopener" aria-label="WhatsApp ile yazın">

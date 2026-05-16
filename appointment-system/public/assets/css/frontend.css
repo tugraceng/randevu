@@ -1208,6 +1208,32 @@ p  { margin: 0 0 var(--space-4); color: var(--ink-500); }
 
 
 /* ============================================================
+ * 24y FOOTER CREDIT (TGR Soft inline link)
+ * ============================================================ */
+.footer-credit {
+    color: rgba(255, 255, 255, .55);
+    font-size: .85rem;
+}
+.footer-credit a {
+    color: rgba(255, 255, 255, .85);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color .2s ease;
+    padding: 0;
+}
+.footer-credit a:hover {
+    color: var(--primary, #6366f1);
+    text-decoration: none;
+}
+.footer-credit a i {
+    color: var(--accent, #f59e0b);
+    margin-right: .2rem;
+    font-size: .85rem;
+}
+.footer-credit a strong { font-weight: 700; margin-left: 2px; }
+
+
+/* ============================================================
  * 24z HERO PRO (v3 polish) — animated stats, orbs, refined preview
  * ============================================================ */
 .hero-pro { padding-block: clamp(5rem, 9vw, 8rem) clamp(4rem, 7vw, 6rem); }

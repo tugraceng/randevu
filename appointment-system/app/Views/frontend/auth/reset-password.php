@@ -125,6 +125,8 @@ $flashOk   = flash('success');
         <?php endif; ?>
     </div>
 
+    <?php require APP_PATH . '/Views/partials/tgrsoft-badge.php'; ?>
+
     <script>
     document.addEventListener('click', (e) => {
         const tog = e.target.closest('[data-pwd-toggle]');

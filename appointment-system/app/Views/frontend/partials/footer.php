@@ -59,7 +59,15 @@ $social = [
             </div>
         </div>
         <div class="footer-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <span>&copy; <?= date('Y') ?> <?= e($siteTitle) ?>. Tüm hakları saklıdır.</span>
+            <span>
+                &copy; <?= date('Y') ?> <?= e($siteTitle) ?>. Tüm hakları saklıdır.
+                <span class="footer-credit ms-2">
+                    · Powered by
+                    <a href="https://tgrsoft.com" target="_blank" rel="noopener sponsored">
+                        <i class="bi bi-lightning-charge-fill"></i> TGR <strong>Soft</strong>
+                    </a>
+                </span>
+            </span>
             <div class="d-flex gap-3">
                 <a href="#">KVKK</a>
                 <a href="#">Gizlilik</a>
