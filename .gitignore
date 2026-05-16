@@ -18,3 +18,4 @@ appointment-system/storage/logs/*
 *.swp
 Thumbs.db
 Desktop.ini
+.git_commit_msg.txt
