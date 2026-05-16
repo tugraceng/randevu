@@ -1,156 +1,208 @@
 /* ============================================================
- * RandevuTakip - Frontend JS
- * Sticky navbar, mobile CTA, smooth scroll, gallery lightbox,
- * scrollspy menu, lazy fade in.
- *
- * Bölümler:
- *   1. Bootstrap & utilities
- *   2. Sticky navbar
- *   3. Smooth scroll & scrollspy
- *   4. Mobile sticky CTA
- *   5. Gallery lightbox
- *   6. Scroll reveal
+ * RandevuTakip — Frontend Premium UX
+ *   01  Sticky Navbar
+ *   02  Smooth Scroll & Scroll Spy
+ *   03  Scroll Reveal
+ *   04  Animated Counters
+ *   05  Floating WhatsApp / Mobile CTA
+ *   06  Gallery Lightbox
+ *   07  Live Booking Hero Strip
  * ============================================================ */
 
 (function () {
     'use strict';
 
-    const ready = (fn) => {
-        if (document.readyState !== 'loading') fn();
-        else document.addEventListener('DOMContentLoaded', fn);
-    };
+    const $  = (sel, ctx = document) => ctx.querySelector(sel);
+    const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
-    /* 2. Sticky navbar
-     * ------------------------------------------------------- */
+    document.addEventListener('DOMContentLoaded', () => {
+        initStickyNavbar();
+        initSmoothScroll();
+        initScrollSpy();
+        initScrollReveal();
+        initAnimatedCounters();
+        initMobileCta();
+        initLightbox();
+        initLiveHeroStrip();
+    });
+
+
+    /* --------------------------------------------------------
+     * 01 Sticky navbar — add `.scrolled` after a few pixels
+     * -------------------------------------------------------- */
     function initStickyNavbar() {
-        const navbar = document.getElementById('mainNav') ||
-                       document.querySelector('.site-navbar');
-        if (!navbar) return;
-
-        const update = () => {
-            if (window.scrollY > 24) navbar.classList.add('scrolled');
-            else navbar.classList.remove('scrolled');
+        const nav = $('.site-nav');
+        if (!nav) return;
+        const onScroll = () => {
+            nav.classList.toggle('scrolled', window.scrollY > 18);
         };
-        update();
-        window.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
     }
 
-    /* 3. Smooth scroll & scrollspy
-     * ------------------------------------------------------- */
+
+    /* --------------------------------------------------------
+     * 02 Smooth scroll for in-page anchors
+     * -------------------------------------------------------- */
     function initSmoothScroll() {
-        document.querySelectorAll('a[href^="#"]').forEach(link => {
-            link.addEventListener('click', e => {
-                const id = link.getAttribute('href');
-                if (!id || id === '#' || id.length < 2) return;
+        $$('a[href^="#"]').forEach(a => {
+            const id = a.getAttribute('href');
+            if (id.length < 2 || id === '#') return;
+            a.addEventListener('click', (e) => {
                 const target = document.querySelector(id);
                 if (!target) return;
                 e.preventDefault();
-                const top = target.getBoundingClientRect().top + window.scrollY - 70;
-                window.scrollTo({ top, behavior: 'smooth' });
-
-                const navCollapse = document.querySelector('.navbar-collapse.show');
-                if (navCollapse && window.bootstrap) {
-                    bootstrap.Collapse.getInstance(navCollapse)?.hide();
+                const offset = 72;
+                window.scrollTo({
+                    top: target.getBoundingClientRect().top + window.scrollY - offset,
+                    behavior: 'smooth'
+                });
+                const collapse = document.getElementById('mainNav');
+                if (collapse && collapse.classList.contains('show')) {
+                    bootstrap.Collapse.getInstance(collapse)?.hide();
                 }
             });
         });
     }
 
+
+    /* --------------------------------------------------------
+     * 03 Scroll spy — highlight active nav-link as user scrolls
+     * -------------------------------------------------------- */
     function initScrollSpy() {
-        const sections = document.querySelectorAll('section[id]');
-        const navLinks = document.querySelectorAll('.site-navbar .nav-link[href^="#"]');
-        if (!sections.length || !navLinks.length) return;
+        const links = $$('.site-nav .nav-link[href^="#"]');
+        if (!links.length) return;
+        const sections = links
+            .map(l => ({ link: l, section: document.querySelector(l.getAttribute('href')) }))
+            .filter(x => x.section);
+        if (!sections.length) return;
 
-        const setActive = (id) => {
-            navLinks.forEach(l => {
-                l.classList.toggle('active', l.getAttribute('href') === '#' + id);
-            });
-        };
-
-        const onScroll = () => {
-            let current = '';
+        const update = () => {
             const y = window.scrollY + 120;
+            let current = sections[0];
             sections.forEach(s => {
-                if (s.offsetTop <= y) current = s.id;
+                if (s.section.offsetTop <= y) current = s;
             });
-            if (current) setActive(current);
+            sections.forEach(s => s.link.classList.toggle('active', s === current));
         };
-        onScroll();
-        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('scroll', update, { passive: true });
+        update();
     }
 
-    /* 4. Mobile sticky CTA
-     * ------------------------------------------------------- */
+
+    /* --------------------------------------------------------
+     * 04 Scroll-reveal animations for [data-reveal] elements
+     * -------------------------------------------------------- */
+    function initScrollReveal() {
+        const items = $$('[data-reveal]');
+        if (!items.length || !('IntersectionObserver' in window)) {
+            items.forEach(el => el.classList.add('visible'));
+            return;
+        }
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    io.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.12 });
+        items.forEach(el => io.observe(el));
+    }
+
+
+    /* --------------------------------------------------------
+     * 05 Animated counters [data-counter="123"]
+     * -------------------------------------------------------- */
+    function initAnimatedCounters() {
+        const counters = $$('[data-counter]');
+        if (!counters.length) return;
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (!e.isIntersecting) return;
+                const el     = e.target;
+                const target = parseFloat(el.dataset.counter) || 0;
+                const dur    = 1400;
+                const start  = performance.now();
+                const step = (now) => {
+                    const p = Math.min((now - start) / dur, 1);
+                    const ease = 1 - Math.pow(1 - p, 3);
+                    el.textContent = formatNumber(target * ease);
+                    if (p < 1) requestAnimationFrame(step);
+                    else el.textContent = formatNumber(target);
+                };
+                requestAnimationFrame(step);
+                io.unobserve(el);
+            });
+        }, { threshold: 0.3 });
+        counters.forEach(el => io.observe(el));
+    }
+    function formatNumber(n) {
+        if (n >= 1000) return Math.round(n).toLocaleString('tr-TR');
+        if (n % 1 === 0) return Math.round(n).toString();
+        return n.toFixed(1);
+    }
+
+
+    /* --------------------------------------------------------
+     * 06 Mobile CTA bar — open appointment modal
+     * -------------------------------------------------------- */
     function initMobileCta() {
         const btn = document.getElementById('mobile-cta-book');
         if (!btn) return;
         btn.addEventListener('click', () => {
-            const modal = document.getElementById('appointmentModal');
-            if (!modal || !window.bootstrap) return;
-            bootstrap.Modal.getOrCreateInstance(modal).show();
+            const modalEl = document.getElementById('appointmentModal');
+            if (modalEl && window.bootstrap) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
         });
     }
 
-    /* 5. Gallery lightbox
-     * ------------------------------------------------------- */
-    function initGalleryLightbox() {
-        const items = document.querySelectorAll('.gallery-item img');
+
+    /* --------------------------------------------------------
+     * 07 Gallery lightbox
+     * -------------------------------------------------------- */
+    function initLightbox() {
+        const items = $$('.gallery-item img');
         if (!items.length) return;
 
-        let overlay = document.querySelector('.lightbox-overlay');
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.className = 'lightbox-overlay';
-            overlay.innerHTML = `
-                <button type="button" class="lightbox-close" aria-label="Kapat">&times;</button>
-                <img alt="">
-            `;
-            document.body.appendChild(overlay);
-        }
-        const imgEl = overlay.querySelector('img');
-        const close = () => overlay.classList.remove('show');
+        const box = document.createElement('div');
+        box.className = 'lightbox';
+        box.innerHTML = `
+            <button class="lightbox-close" aria-label="Kapat"><i class="bi bi-x-lg"></i></button>
+            <img alt="">
+        `;
+        document.body.appendChild(box);
 
-        items.forEach(img => {
-            img.addEventListener('click', () => {
-                imgEl.src = img.src;
-                imgEl.alt = img.alt || '';
-                overlay.classList.add('show');
+        const img = box.querySelector('img');
+        items.forEach(el => {
+            el.style.cursor = 'zoom-in';
+            el.parentElement.addEventListener('click', () => {
+                img.src = el.src;
+                box.classList.add('active');
             });
         });
-
-        overlay.addEventListener('click', e => {
-            if (e.target === overlay || e.target.classList.contains('lightbox-close')) close();
-        });
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') close();
-        });
+        const hide = () => box.classList.remove('active');
+        box.querySelector('.lightbox-close').addEventListener('click', hide);
+        box.addEventListener('click', (e) => { if (e.target === box) hide(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
     }
 
-    /* 6. Scroll reveal
-     * ------------------------------------------------------- */
-    function initReveal() {
-        const items = document.querySelectorAll('[data-reveal]');
-        if (!items.length || !('IntersectionObserver' in window)) {
-            items.forEach(el => el.classList.add('is-visible'));
-            return;
-        }
-        const io = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    io.unobserve(entry.target);
-                }
-            });
-        }, { threshold: .15 });
-        items.forEach(el => io.observe(el));
-    }
 
-    ready(() => {
-        initStickyNavbar();
-        initSmoothScroll();
-        initScrollSpy();
-        initMobileCta();
-        initGalleryLightbox();
-        initReveal();
-    });
+    /* --------------------------------------------------------
+     * 08 Live hero strip — "Bugün X kişi randevu aldı"
+     *    Rotates randomly between common counts every 4s.
+     * -------------------------------------------------------- */
+    function initLiveHeroStrip() {
+        const el = $('[data-live-count]');
+        if (!el) return;
+        const base = parseInt(el.dataset.liveCount || '0', 10) || 23;
+        let n = base;
+        const tick = () => {
+            n += Math.random() < 0.6 ? 1 : 0;
+            el.textContent = n;
+        };
+        tick();
+        setInterval(tick, 4500);
+    }
 })();

@@ -18,31 +18,20 @@ function admin_breadcrumb(array $items): string
 
 function status_badge(string $status): string
 {
-    $map = [
-        'pending' => 'warning',
-        'approved' => 'primary',
-        'completed' => 'success',
-        'cancelled' => 'secondary',
-        'no_show' => 'danger',
-        'paid' => 'success',
-        'failed' => 'danger',
-        'refunded' => 'info',
-        'not_required' => 'light',
-    ];
     $labels = [
-        'pending' => 'Bekliyor',
-        'approved' => 'Onaylı',
-        'completed' => 'Tamamlandı',
-        'cancelled' => 'İptal',
-        'no_show' => 'Gelmedi',
-        'paid' => 'Ödendi',
-        'failed' => 'Başarısız',
-        'refunded' => 'İade',
+        'pending'      => 'Bekliyor',
+        'approved'     => 'Onaylı',
+        'confirmed'    => 'Onaylı',
+        'completed'    => 'Tamamlandı',
+        'cancelled'    => 'İptal',
+        'no_show'      => 'Gelmedi',
+        'paid'         => 'Ödendi',
+        'failed'       => 'Başarısız',
+        'refunded'     => 'İade',
         'not_required' => 'Gerekmez',
     ];
-    $color = $map[$status] ?? 'secondary';
     $label = $labels[$status] ?? $status;
-    return '<span class="badge bg-' . $color . '">' . e($label) . '</span>';
+    return '<span class="status-pill status-' . e($status) . '">' . e($label) . '</span>';
 }
 
 function pagination_links(int $total, int $page, int $perPage, string $baseUrl): string

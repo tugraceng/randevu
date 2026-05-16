@@ -20,34 +20,26 @@ require APP_PATH . '/Views/admin/partials/header.php';
     </div>
 </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <span class="stat-icon"><i class="bi bi-person-badge"></i></span>
-            <div class="stat-label">Toplam Müşteri</div>
-            <div class="stat-value"><?= number_format($total_customers) ?></div>
-        </div>
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-head"><span class="kpi-ic"><i class="bi bi-person-badge"></i></span></div>
+        <div class="label">Toplam Müşteri</div>
+        <div class="value" data-counter="<?= (int)$total_customers ?>">0</div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card tone-info">
-            <span class="stat-icon"><i class="bi bi-box-seam"></i></span>
-            <div class="stat-label">Aktif Paket</div>
-            <div class="stat-value"><?= number_format($active_packages) ?></div>
-        </div>
+    <div class="kpi-card k-info">
+        <div class="kpi-head"><span class="kpi-ic"><i class="bi bi-box-seam"></i></span></div>
+        <div class="label">Aktif Paket</div>
+        <div class="value" data-counter="<?= (int)$active_packages ?>">0</div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card tone-success">
-            <span class="stat-icon"><i class="bi bi-cash-stack"></i></span>
-            <div class="stat-label">Aylık Gelir</div>
-            <div class="stat-value"><?= format_money((float)$revenue) ?></div>
-        </div>
+    <div class="kpi-card k-success">
+        <div class="kpi-head"><span class="kpi-ic"><i class="bi bi-cash-stack"></i></span></div>
+        <div class="label">Aylık Gelir</div>
+        <div class="value"><?= format_money((float)$revenue) ?></div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card tone-danger">
-            <span class="stat-icon"><i class="bi bi-exclamation-triangle"></i></span>
-            <div class="stat-label">Kritik Seans</div>
-            <div class="stat-value"><?= (int)$critical ?></div>
-        </div>
+    <div class="kpi-card k-danger">
+        <div class="kpi-head"><span class="kpi-ic"><i class="bi bi-exclamation-triangle"></i></span></div>
+        <div class="label">Kritik Seans</div>
+        <div class="value" data-counter="<?= (int)$critical ?>">0</div>
     </div>
 </div>
 
@@ -90,15 +82,13 @@ require APP_PATH . '/Views/admin/partials/header.php';
                 <?php foreach ($customers['data'] as $c): $rem = (int)($c['remaining_sessions'] ?? 0); $totalSess = (int)($c['total_sessions'] ?? max($rem, 10)); $pct = $totalSess ? min(100, round($rem / $totalSess * 100)) : 0; ?>
                 <tr>
                     <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="avatar bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;font-weight:700;color:var(--primary);background:var(--primary-soft) !important;">
-                                <?= strtoupper(mb_substr($c['first_name'], 0, 1)) ?>
-                            </span>
+                        <div class="table-avatar">
+                            <span class="avatar"><?= strtoupper(mb_substr($c['first_name'], 0, 1)) ?></span>
                             <div>
                                 <a href="<?= admin_url('?route=customers/show&id=' . (int)$c['id']) ?>" class="text-decoration-none">
                                     <strong><?= e($c['first_name'].' '.$c['last_name']) ?></strong>
                                 </a>
-                                <small class="text-muted d-block"><?= e($c['email']) ?></small>
+                                <small><?= e($c['email']) ?></small>
                             </div>
                         </div>
                     </td>
@@ -112,8 +102,8 @@ require APP_PATH . '/Views/admin/partials/header.php';
                     </td>
                     <td><?= status_badge($c['last_payment_status'] ?? 'pending') ?></td>
                     <td class="text-end">
-                        <a href="<?= admin_url('?route=customers/show&id=' . (int)$c['id']) ?>" class="btn btn-soft btn-sm"><i class="bi bi-eye"></i></a>
-                        <a href="<?= admin_url('?route=appointments/create&customer_id=' . (int)$c['id']) ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-calendar-plus"></i></a>
+                        <a href="<?= admin_url('?route=customers/show&id=' . (int)$c['id']) ?>" class="btn btn-icon" title="Detay"><i class="bi bi-eye"></i></a>
+                        <a href="<?= admin_url('?route=appointments/create&customer_id=' . (int)$c['id']) ?>" class="btn btn-icon" title="Randevu oluştur"><i class="bi bi-calendar-plus"></i></a>
                     </td>
                 </tr>
                 <?php endforeach; ?>

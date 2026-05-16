@@ -84,6 +84,102 @@ appointment-system/
 └── cron/
 ```
 
+## UI/UX Revamp (Premium SaaS Edition)
+
+Sistem "çalışan proje" seviyesinden çıkarılıp **premium SaaS / ticari ürün** seviyesine taşındı. Backend mantığı korunarak yalnızca frontend / admin / customer UI katmanı sıfırdan inşa edildi.
+
+### Tasarım Dili
+
+- **Modern SaaS · Premium · Minimal ama güçlü**
+- Yumuşak gölgeler, geniş köşe radius'ları (12–28px), ferah boşluk kullanımı
+- Gradient CTA / hero / KPI alanları, glassmorphism (navbar + topbar)
+- Hover animasyonları + smooth transition (cubic-bezier easing)
+- **Inter** font sistemi, güçlü heading hiyerarşisi
+- Tüm renkler `--primary` / `--secondary` CSS değişkenleri ile admin Ayarlar üzerinden değiştirilebilir
+- Mobile-first responsive (575 / 767 / 991 / 1199 breakpoint'leri)
+
+### CSS Mimarisi — Yeniden Yazıldı
+
+`public/assets/css/frontend.css`, `admin.css`, `customer.css` dosyalarının üçü de **bölüm bölüm yorumlanmış**, sürdürülebilir ve okunabilir bir mimariye geçti.
+
+Bölüm yapısı (örnek admin.css):
+```
+01 Root Variables       08 Badges & Status Pills   15 Payment Module
+02 Reset & Base          09 Tables                   16 Reports
+03 Typography            10 Modals                   17 Settings (Tabs)
+04 Layout (Shell)        11 Dashboard (KPI/Charts)   18 Messages / Templates
+05 Buttons               12 Appointment Module       19 Empty / Loading / Skeleton
+06 Forms                 13 Package Module           20 Toast / Alert / Confirm
+07 Cards / Panels        14 Customer Module (CRM)    21 Auth · 22 Utility · 23 Responsive
+```
+
+Her dosyada **root variables + spacing scale + radius scale + shadow scale + transition tokens + utility helpers** tanımlandı.
+
+### Premium Frontend (Landing)
+
+- **Hero**: Gradient blur shapes (`hero-float` animasyon), eğik glassmorphism preview card, "Bugün **X** kişi randevu aldı" canlı strip (`data-live-count`), trust badge'ler, çift CTA (Online Randevu / WhatsApp)
+- **Animated counters**: `data-counter="15000"` ile hero istatistikleri görünür olunca animasyonlu sayar
+- **Hizmet kartları**: Görsel zoom + hover gradient overlay
+- **Paket kartları**: Featured (`Popüler`) için gradient arka plan, scale + glow, benefit listesi
+- **Booking modal (`#appointmentModal`)** – tamamen yeniden tasarlandı:
+  - 2 sütunlu layout (Ana panel + sticky özet kart)
+  - 6 adımlı stepper (Hizmet → Personel → Tarih → Saat → Not → Onay)
+  - `choice-tile` (büyük seçim kutuları), `slot-grid` (saat kartları)
+  - **Skeleton loader** ile AJAX slot yükleme
+  - Canlı `data-sum="..."` summary card (hizmet/personel/tarih/saat/tutar)
+  - Geri / İleri / Randevu Oluştur akışı (`appointment.js`)
+- **Footer**: Gradient dark + brand icon + sosyal medya + KVKK linkleri
+- **Floating WhatsApp**: çift halka animasyonu (`wa-pulse` + `wa-ring`)
+- **Mobil**: alt yapışkan CTA bar (`Hızlı Randevu Al`)
+- **Lightbox** galeri (kapatma `Esc` ile)
+- **Scroll-reveal** `[data-reveal]` etkilenir
+
+### Premium Admin Panel (SaaS Dashboard)
+
+- **Layout**: Dark navy sticky sidebar (radial gradient highlight) + light content + **collapsible sidebar** (`localStorage` ile hatırlanan) + mobil overlay sidebar
+- **Topbar**: Glassmorphism (blur), arama kutusu, hızlı randevu kısayolu, bildirim dropdown'u (kategorili), kullanıcı dropdown'u
+- **KPI Cards**: Gradient top border, ikon kutucuk, trend pill (↑ %12 / ↓ %3), `data-counter` animasyonlu sayar — `k-success`, `k-warning`, `k-danger`, `k-info` ton varyasyonları
+- **Chart.js dashboard**: Line (gradient fill), doughnut, bar grafikler — admin.js içinden `?route=dashboard/chart-data&type=...` ile lazy load
+- **Tablolar (`.table-rounded`)**: Avatar + müşteri bloğu, hover row, `.status-pill` (renkli noktalı) durum badge'leri, `.btn-icon` quick actions, mobilde `.list-card` görünüm
+- **Empty states**: İkon dairesel + başlık + açıklama + CTA
+- **Settings ekranı (`.settings-shell`)**: Sol dikey tab listesi (sticky) + sağda `.settings-card`. SMTP / NetGSM / WhatsApp / Payment için `data-test-endpoint` ile **bağlantı testi** butonu (admin.js)
+- **Mesaj şablonları**: `.var-panel` + `.var-btn` ile değişken ekleme (`{name}`, `{date}`, ...) — textarea cursor pozisyonuna ekleniyor
+- **Auth ekranı**: `.auth-shell` + `.auth-card` premium gradient background
+
+### Premium Customer Portal
+
+- Sidebar + topbar + ferah içerik alanı
+- Dashboard'da **`loyalty-card`** (gradient + dekoratif daireler + paket progress)
+- KPI stat kartlar (`.c-stat` gradient top border)
+- Stepper'lı randevu oluşturma akışı + AJAX slot
+- Modernize tablolar (geçmiş randevular / ödemeler)
+
+### JavaScript Modülleri — Yeniden Yazıldı
+
+| Dosya | İçerik |
+|-------|--------|
+| `public/assets/js/frontend.js` | Sticky navbar, smooth scroll, scroll-spy, scroll-reveal, animated counters, mobile CTA, lightbox, live hero count |
+| `public/assets/js/appointment.js` | 6 adımlı stepper, choice-tile binding, skeleton-loaded slot grid, live summary card, AJAX slot loader, hidden input bridging |
+| `public/assets/js/admin.js` | Toast sistemi (success/error/warning/info), Confirm modal (Promise tabanlı), Sidebar collapse + mobile overlay, [data-confirm] generic handler, Filter reset / auto-filter, Template variable inserter, Chart.js dashboard renderer, Quick customer create AJAX, Customer package loader, Form submit loaders, Settings test buttons, Animated counters |
+
+### Toast / Confirm / Loading
+
+- **Toast**: `Admin.toast(message, type, timeout)` — sağ üstte slide-in animasyonu, kategorize ikonlar
+- **Confirm modal**: `Admin.confirm(message)` Promise döner, tüm `data-confirm="..."` elementleri otomatik bağlanır
+- **Skeleton loader**: `.skeleton`, `.skeleton-line`, `.skeleton-block`, `.skeleton-circle` — shimmer animasyonu
+- **Button loading**: `btn[data-loading="true"]` → spinner overlay (text gizlenir, animasyon görünür)
+- **Empty state**: `.empty-state .icon` + başlık + açıklama + CTA
+
+### Mobil Deneyim
+
+- 991px altı: Sidebar mobil overlay'e dönüşür, topbar arama gizlenir, kullanıcı adı kısalır
+- 767px altı: Sayfa padding azalır, tablolar yan kaydırılır, hero ortalanır
+- Frontend mobilde: alt yapışkan CTA bar, WhatsApp floating button konum güncellenir
+
+### Yardımcı (`status_badge`)
+
+Helper artık `<span class="status-pill status-{status}">` üretir; renk her durum için CSS'te tanımlı.
+
 ## UI/UX Büyük Güncelleme
 
 Frontend, admin paneli ve müşteri paneli baştan sona "satılabilir, modern ve premium" anlayışla yeniden tasarlandı. Bootstrap 5 temel alındı, fakat klasik Bootstrap görünümünden uzaklaşmak için tüm bileşenler özel CSS değişkenleri ile kapsamlı şekilde özelleştirildi.

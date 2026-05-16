@@ -54,9 +54,10 @@ $vars = ['{name}','{phone}','{email}','{date}','{time}','{service}','{staff}','{
                 <label class="form-label">Mesaj İçeriği</label>
                 <textarea id="<?= $taId ?>" name="body" class="form-control mb-2" rows="4"><?= e($tpl['body']) ?></textarea>
 
-                <div class="template-vars">
+                <div class="var-panel" style="max-height:none;">
+                    <small class="text-muted d-block mb-2"><i class="bi bi-info-circle me-1"></i> Aşağıdaki butona tıklayarak değişkeni metne ekleyebilirsiniz:</small>
                     <?php foreach ($vars as $v): ?>
-                    <span class="var" data-insert-var="<?= e($v) ?>" data-target="#<?= $taId ?>"><?= e($v) ?></span>
+                    <button type="button" class="var-btn" data-insert-var="<?= e($v) ?>" data-target="#<?= $taId ?>"><?= e($v) ?></button>
                     <?php endforeach; ?>
                 </div>
 

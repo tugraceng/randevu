@@ -1,551 +1,597 @@
 /* ============================================================
- * RandevuTakip - Customer Stylesheet
- * Müşteri paneli (panel + randevu + paket + ödeme).
- *
+ * RandevuTakip — Customer Portal Stylesheet
+ * Modern · Premium · Mobile-first
  * Bölümler:
- *   1. Variables
- *   2. Layout
- *   3. Sidebar
- *   4. Topbar / page header
- *   5. Cards & surfaces
- *   6. Stat & summary cards
- *   7. Stepper (booking)
- *   8. Service select cards
- *   9. Forms
- *  10. Tables
- *  11. Loyalty / package
- *  12. Empty / alerts
- *  13. Responsive
+ *   01  Root Variables
+ *   02  Reset & Base
+ *   03  Typography
+ *   04  Layout (Shell / Sidebar / Topbar / Main)
+ *   05  Buttons
+ *   06  Forms
+ *   07  Cards & Panels
+ *   08  Badges & Status Pills
+ *   09  Tables
+ *   10  Dashboard / Stats / Loyalty
+ *   11  Appointment / Booking Stepper
+ *   12  Package Module
+ *   13  Payment Module
+ *   14  Profile / Auth
+ *   15  Empty & Loading
+ *   16  Utility Helpers
+ *   17  Responsive
  * ============================================================ */
 
 
-/* 1. Variables
- * ----------------------------------------------------------- */
+/* ============================================================
+ * 01 ROOT VARIABLES
+ * ============================================================ */
 :root {
-    --c-primary: #4f46e5;
-    --c-primary-soft: rgba(79, 70, 229, .12);
-    --c-secondary: #0ea5e9;
-    --c-success: #10b981;
-    --c-warning: #f59e0b;
-    --c-danger: #ef4444;
-    --c-bg: #f5f7fb;
-    --c-surface: #ffffff;
-    --c-surface-alt: #f8fafc;
-    --c-line: #e6eaf2;
-    --c-ink: #0f172a;
-    --c-ink-soft: #1e293b;
-    --c-muted: #64748b;
-    --c-radius: 14px;
-    --c-radius-lg: 20px;
-    --c-shadow-xs: 0 1px 2px rgba(15, 23, 42, .04);
-    --c-shadow-sm: 0 4px 16px rgba(15, 23, 42, .06);
-    --c-shadow-md: 0 12px 28px rgba(15, 23, 42, .08);
+    --c-primary:        #4f46e5;
+    --c-primary-dark:   #3730a3;
+    --c-primary-soft:   rgba(79, 70, 229, .12);
+    --c-secondary:      #0ea5e9;
+    --c-success:        #10b981;
+    --c-danger:         #ef4444;
+    --c-warning:        #f59e0b;
+    --c-info:           #06b6d4;
+
+    --c-ink-900:        #0f172a;
+    --c-ink-700:        #1e293b;
+    --c-ink-500:        #475569;
+    --c-ink-400:        #64748b;
+    --c-ink-300:        #94a3b8;
+    --c-ink-200:        #cbd5e1;
+    --c-ink-100:        #e2e8f0;
+    --c-ink-50:         #f1f5f9;
+
+    --c-surface:        #ffffff;
+    --c-surface-alt:    #f8fafc;
+    --c-bg:             #f5f7fb;
+
+    --c-space-1:        .25rem;
+    --c-space-2:        .5rem;
+    --c-space-3:        .75rem;
+    --c-space-4:        1rem;
+    --c-space-5:        1.5rem;
+    --c-space-6:        2rem;
+    --c-space-7:        3rem;
+
+    --c-radius-sm:      8px;
+    --c-radius:         12px;
+    --c-radius-lg:      18px;
+    --c-radius-xl:      24px;
+    --c-radius-pill:    999px;
+
+    --c-shadow-xs:      0 1px 2px rgba(15, 23, 42, .04);
+    --c-shadow-sm:      0 2px 8px rgba(15, 23, 42, .05);
+    --c-shadow:         0 8px 22px rgba(15, 23, 42, .08);
+    --c-shadow-md:      0 14px 36px rgba(15, 23, 42, .10);
+
+    --c-t-fast:         .15s ease;
+    --c-t-med:          .25s cubic-bezier(.4,.0,.2,1);
+
+    --c-grad:           linear-gradient(135deg, var(--c-primary), var(--c-secondary));
+    --c-grad-soft:      linear-gradient(180deg, rgba(79,70,229,.06), rgba(14,165,233,.06));
+
+    --c-sb-w:           250px;
+    --c-tb-h:           68px;
+    --c-font:           'Inter', 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-* {
-    box-sizing: border-box;
-}
 
-
-/* 2. Layout
- * ----------------------------------------------------------- */
+/* ============================================================
+ * 02 RESET & BASE
+ * ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
 body {
-    background: var(--c-bg);
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    color: var(--c-ink);
-    -webkit-font-smoothing: antialiased;
-}
-
-.customer-layout {
-    min-height: 100vh;
-    display: flex;
-}
-
-.customer-main {
-    flex: 1;
-    min-width: 0;
-}
-
-.customer-content {
-    padding: 1.5rem 2rem 3rem;
-}
-
-
-/* 3. Sidebar
- * ----------------------------------------------------------- */
-.customer-sidebar {
-    width: 260px;
-    min-height: 100vh;
-    background: var(--c-surface);
-    border-right: 1px solid var(--c-line);
-    padding: 1.5rem 1rem;
-    position: sticky;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.customer-brand {
-    display: flex;
-    align-items: center;
-    gap: .65rem;
-    padding: 0 .25rem 1rem;
-    border-bottom: 1px solid var(--c-line);
-    margin-bottom: 1rem;
-}
-
-.customer-brand .brand-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.customer-brand h6 {
     margin: 0;
-    color: var(--c-ink);
+    background: var(--c-bg);
+    color: var(--c-ink-700);
+    font-family: var(--c-font);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+a { color: var(--c-primary); text-decoration: none; transition: color var(--c-t-fast); }
+a:hover { color: var(--c-primary-dark); }
+hr { border: 0; border-top: 1px solid var(--c-ink-100); margin: var(--c-space-4) 0; }
+::selection { background: var(--c-primary); color: #fff; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-ink-200); border-radius: var(--c-radius-pill); }
+
+
+/* ============================================================
+ * 03 TYPOGRAPHY
+ * ============================================================ */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--c-ink-900);
     font-weight: 700;
+    margin: 0 0 var(--c-space-3);
+    letter-spacing: -.01em;
+}
+h1 { font-size: 1.75rem; }
+h4 { font-size: 1.2rem; }
+h5 { font-size: 1.02rem; }
+h6 { font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; }
+p  { margin: 0 0 var(--c-space-3); color: var(--c-ink-500); }
+.text-muted { color: var(--c-ink-400) !important; }
+
+
+/* ============================================================
+ * 04 LAYOUT (Shell / Sidebar / Topbar / Main)
+ * ============================================================ */
+.customer-layout {
+    display: grid;
+    grid-template-columns: var(--c-sb-w) 1fr;
+    min-height: 100vh;
 }
 
-.customer-brand small {
-    color: var(--c-muted);
-    font-size: .72rem;
-    letter-spacing: .04em;
-    text-transform: uppercase;
+.customer-sidebar {
+    background: var(--c-surface);
+    border-right: 1px solid var(--c-ink-100);
+    padding: 1.25rem 1rem;
+    height: 100vh;
+    position: sticky; top: 0;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+}
+.customer-brand {
+    display: flex; align-items: center; gap: .65rem;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--c-ink-100);
+}
+.customer-brand h6 { margin: 0; font-size: 1rem; text-transform: none; letter-spacing: 0; }
+.customer-brand small { color: var(--c-ink-400); font-size: .72rem; }
+.brand-icon {
+    width: 40px; height: 40px;
+    background: var(--c-grad);
+    color: #fff;
+    border-radius: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.15rem;
+    box-shadow: 0 10px 22px rgba(79, 70, 229, .35);
 }
 
+.customer-sidebar .nav { gap: 2px; }
 .customer-sidebar .nav-link {
-    color: var(--c-muted);
-    border-radius: 10px;
-    padding: .55rem .75rem;
+    display: flex; align-items: center; gap: .7rem;
+    padding: .65rem .85rem;
+    border-radius: var(--c-radius);
+    color: var(--c-ink-500);
     font-weight: 500;
-    font-size: .92rem;
-    margin: 2px 0;
-    display: flex;
-    align-items: center;
-    gap: .65rem;
-    transition: background .2s, color .2s;
+    font-size: .9rem;
+    transition: all var(--c-t-fast);
+    position: relative;
 }
-
-.customer-sidebar .nav-link i {
-    width: 22px;
-    text-align: center;
-}
-
-.customer-sidebar .nav-link:hover {
-    background: var(--c-surface-alt);
-    color: var(--c-ink);
-}
-
+.customer-sidebar .nav-link:hover { background: var(--c-surface-alt); color: var(--c-ink-900); }
 .customer-sidebar .nav-link.active {
     background: var(--c-primary-soft);
     color: var(--c-primary);
     font-weight: 600;
 }
-
-.customer-sidebar .foot {
-    margin-top: auto;
+.customer-sidebar .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: -1rem; top: 8px; bottom: 8px;
+    width: 3px;
+    background: var(--c-primary);
+    border-radius: var(--c-radius-pill);
 }
+.customer-sidebar .nav-link i { width: 20px; text-align: center; font-size: 1.05rem; }
+.customer-sidebar .foot { margin-top: auto; padding-top: 1rem; }
 
+.customer-main { min-width: 0; display: flex; flex-direction: column; }
 
-/* 4. Topbar / page header
- * ----------------------------------------------------------- */
 .customer-topbar {
-    background: var(--c-surface);
-    border-bottom: 1px solid var(--c-line);
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    height: var(--c-tb-h);
+    padding: 0 1.5rem;
+    background: rgba(255, 255, 255, .88);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid var(--c-ink-100);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0;
+    z-index: 50;
 }
+.customer-topbar h4 { margin: 0; font-size: 1.1rem; }
 
-.customer-topbar h4 {
-    margin: 0;
-    font-weight: 700;
-    font-size: 1.15rem;
-}
-
-.customer-topbar .user-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: .6rem;
+.user-chip {
+    display: inline-flex; align-items: center; gap: .55rem;
+    padding: .3rem .8rem .3rem .35rem;
     background: var(--c-surface-alt);
-    border: 1px solid var(--c-line);
-    border-radius: 999px;
-    padding: .3rem .65rem .3rem .3rem;
-    font-size: .85rem;
+    border: 1px solid var(--c-ink-100);
+    border-radius: var(--c-radius-pill);
+    font-weight: 500;
+    color: var(--c-ink-700);
+    font-size: .88rem;
 }
-
-.customer-topbar .user-chip .avatar {
-    width: 30px;
-    height: 30px;
+.user-chip .avatar {
+    width: 30px; height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
+    background: var(--c-grad);
     color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: .8rem;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .8rem;
 }
 
-
-/* 5. Cards & surfaces
- * ----------------------------------------------------------- */
-.c-card {
-    background: var(--c-surface);
-    border: 1px solid var(--c-line);
-    border-radius: var(--c-radius);
-    padding: 1.25rem;
-    box-shadow: var(--c-shadow-xs);
-}
-
-.c-card-lg {
-    background: var(--c-surface);
-    border: 1px solid var(--c-line);
-    border-radius: var(--c-radius-lg);
+.customer-content {
     padding: 1.5rem;
-    box-shadow: var(--c-shadow-sm);
-}
-
-.c-card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    gap: 1rem;
-}
-
-.c-card-head h6 {
-    margin: 0;
-    font-weight: 700;
+    max-width: 1300px;
+    margin: 0 auto;
+    width: 100%;
+    animation: fade-in .25s ease;
 }
 
 
-/* 6. Stat & summary cards
- * ----------------------------------------------------------- */
-.c-stat {
-    background: var(--c-surface);
-    border: 1px solid var(--c-line);
+/* ============================================================
+ * 05 BUTTONS
+ * ============================================================ */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: .45rem;
+    padding: .55rem 1.1rem;
     border-radius: var(--c-radius);
-    padding: 1.2rem;
-    box-shadow: var(--c-shadow-xs);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: .25rem;
-}
-
-.c-stat .label {
-    color: var(--c-muted);
-    font-size: .78rem;
-    text-transform: uppercase;
-    letter-spacing: .06em;
     font-weight: 600;
-}
-
-.c-stat .value {
-    color: var(--c-ink);
-    font-weight: 800;
-    font-size: 1.5rem;
-    margin: .25rem 0;
-}
-
-.c-stat .meta {
-    color: var(--c-muted);
-    font-size: .82rem;
-}
-
-.c-stat .stat-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: var(--c-primary-soft);
-    color: var(--c-primary);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
-    margin-bottom: .25rem;
-}
-
-
-/* 7. Stepper (booking)
- * ----------------------------------------------------------- */
-.stepper {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-}
-
-.stepper .step {
-    display: flex;
-    align-items: center;
-    gap: .85rem;
-    padding: .75rem 0;
-    color: var(--c-muted);
-    border-bottom: 1px dashed var(--c-line);
-}
-
-.stepper .step:last-of-type {
-    border-bottom: none;
-}
-
-.stepper .step-num {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--c-surface-alt);
-    color: var(--c-muted);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-
-.stepper .step.active {
-    color: var(--c-ink);
-    font-weight: 600;
-}
-
-.stepper .step.active .step-num {
-    background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
-    color: #fff;
-}
-
-.stepper .step.done .step-num {
-    background: var(--c-primary-soft);
-    color: var(--c-primary);
-}
-
-
-/* 8. Service select cards
- * ----------------------------------------------------------- */
-.service-select-card {
+    font-size: .88rem;
+    border: 0;
     cursor: pointer;
-    border: 2px solid transparent;
-    background: var(--c-surface);
+    transition: all var(--c-t-fast);
+}
+.btn:active { transform: scale(.97); }
+.btn-sm { padding: .35rem .8rem; font-size: .78rem; border-radius: var(--c-radius-sm); }
+.btn-lg { padding: .85rem 1.5rem; font-size: 1rem; }
+
+.btn-primary {
+    background: var(--c-grad);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(79, 70, 229, .28);
+}
+.btn-primary:hover { color: #fff; transform: translateY(-1px); box-shadow: 0 12px 24px rgba(79, 70, 229, .38); }
+
+.btn-outline-primary { background: var(--c-surface); color: var(--c-primary); box-shadow: inset 0 0 0 1.5px var(--c-primary); }
+.btn-outline-primary:hover { background: var(--c-primary); color: #fff; }
+.btn-outline-secondary { background: var(--c-surface); color: var(--c-ink-700); box-shadow: inset 0 0 0 1.5px var(--c-ink-200); }
+.btn-outline-secondary:hover { background: var(--c-ink-50); color: var(--c-ink-900); }
+.btn-light { background: var(--c-surface-alt); color: var(--c-ink-700); border: 1px solid var(--c-ink-100); }
+.btn-light:hover { background: var(--c-ink-50); }
+
+
+/* ============================================================
+ * 06 FORMS
+ * ============================================================ */
+.form-control, .form-select {
+    padding: .6rem .9rem;
     border-radius: var(--c-radius);
-    padding: 1rem 1.25rem;
-    transition: all .2s ease;
-    box-shadow: var(--c-shadow-xs);
-    height: 100%;
+    border: 1.5px solid var(--c-ink-100);
+    background: var(--c-surface);
+    font-size: .9rem;
+    color: var(--c-ink-700);
+    transition: all var(--c-t-fast);
+    width: 100%;
 }
-
-.service-select-card:hover {
-    border-color: var(--c-line);
-    transform: translateY(-2px);
-    box-shadow: var(--c-shadow-sm);
-}
-
-.service-select-card.selected {
+.form-control:focus, .form-select:focus {
+    outline: none;
     border-color: var(--c-primary);
     box-shadow: 0 0 0 3px var(--c-primary-soft);
 }
+.form-label { font-weight: 600; color: var(--c-ink-700); margin-bottom: .35rem; font-size: .85rem; }
 
-.service-select-card h6 {
-    margin-bottom: .35rem;
-    font-weight: 700;
-}
 
-.service-select-card .price {
-    color: var(--c-primary);
-    font-weight: 700;
-}
-
-.slot-btn {
+/* ============================================================
+ * 07 CARDS & PANELS
+ * ============================================================ */
+.c-card {
     background: var(--c-surface);
-    border: 1px solid var(--c-line);
-    border-radius: 10px;
-    padding: .4rem .85rem;
-    color: var(--c-ink);
-    font-size: .9rem;
-    cursor: pointer;
-    transition: all .2s;
+    border: 1px solid var(--c-ink-100);
+    border-radius: var(--c-radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--c-shadow-xs);
+    transition: box-shadow var(--c-t-med), transform var(--c-t-med);
 }
-
-.slot-btn:hover {
-    border-color: var(--c-primary);
-    color: var(--c-primary);
+.c-card:hover { box-shadow: var(--c-shadow-sm); }
+.c-card-lg {
+    background: var(--c-surface);
+    border-radius: var(--c-radius-xl);
+    padding: 1.75rem;
+    box-shadow: var(--c-shadow-sm);
+    border: 1px solid var(--c-ink-100);
 }
-
-.slot-btn.active {
-    background: var(--c-primary);
-    color: #fff;
-    border-color: var(--c-primary);
+.c-card-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
 }
+.c-card-head h6 { margin: 0; font-size: .95rem; text-transform: none; letter-spacing: 0; }
 
 
-/* 9. Forms
- * ----------------------------------------------------------- */
-.form-control,
-.form-select {
-    border-radius: 10px;
-    border-color: var(--c-line);
-}
-
-.form-control:focus,
-.form-select:focus {
-    border-color: var(--c-primary);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, .15);
-}
-
-.btn {
-    border-radius: 10px;
+/* ============================================================
+ * 08 BADGES & STATUS PILLS
+ * ============================================================ */
+.badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    padding: .25rem .6rem;
+    font-size: .72rem;
     font-weight: 600;
+    border-radius: var(--c-radius-pill);
 }
+.bg-primary   { background: var(--c-primary-soft) !important; color: var(--c-primary) !important; }
+.bg-success   { background: rgba(16,185,129,.13) !important; color: var(--c-success) !important; }
+.bg-danger    { background: rgba(239,68,68,.13)  !important; color: var(--c-danger)  !important; }
+.bg-warning   { background: rgba(245,158,11,.13) !important; color: #b45309          !important; }
+.bg-info      { background: rgba(6,182,212,.13)  !important; color: var(--c-info)    !important; }
+.bg-secondary { background: var(--c-ink-50) !important; color: var(--c-ink-500) !important; }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
-    border-color: transparent;
+
+/* ============================================================
+ * 09 TABLES
+ * ============================================================ */
+.table {
+    width: 100%;
+    color: var(--c-ink-700);
+    margin: 0;
+    border-collapse: separate;
 }
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #4338ca, #0284c7);
-    border-color: transparent;
-}
-
-.btn-outline-primary {
-    border-color: var(--c-primary);
-    color: var(--c-primary);
-}
-
-.btn-outline-primary:hover {
-    background: var(--c-primary);
-    color: #fff;
-}
-
-
-/* 10. Tables
- * ----------------------------------------------------------- */
 .table thead th {
-    color: var(--c-muted);
-    font-size: .78rem;
+    background: var(--c-surface-alt);
+    color: var(--c-ink-500);
+    font-size: .73rem;
     text-transform: uppercase;
     letter-spacing: .06em;
     font-weight: 600;
-    background: var(--c-surface-alt);
-    border-bottom: 1px solid var(--c-line);
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--c-ink-100);
+    border-top: 0;
+    white-space: nowrap;
 }
-
 .table tbody td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--c-ink-50);
     vertical-align: middle;
-}
-
-
-/* 11. Loyalty / package
- * ----------------------------------------------------------- */
-.loyalty-card {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
-    color: #fff;
-    border-radius: var(--c-radius-lg);
-    padding: 1.5rem 1.75rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.loyalty-card::before {
-    content: "";
-    position: absolute;
-    top: -40px;
-    right: -40px;
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    background: rgba(79, 70, 229, .35);
-    filter: blur(40px);
-}
-
-.loyalty-card h5 {
-    color: #fff;
-    margin-bottom: .25rem;
-}
-
-.loyalty-card .pkg-row {
-    border-bottom: 1px solid rgba(255, 255, 255, .12);
-    padding: .65rem 0;
     font-size: .9rem;
 }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table tbody tr:hover { background: var(--c-surface-alt); }
 
-.loyalty-card .pkg-row:last-of-type {
-    border-bottom: none;
+
+/* ============================================================
+ * 10 DASHBOARD / STATS / LOYALTY
+ * ============================================================ */
+.c-stat {
+    background: var(--c-surface);
+    border: 1px solid var(--c-ink-100);
+    border-radius: var(--c-radius-lg);
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--c-shadow-xs);
+    display: flex; flex-direction: column;
+    transition: transform var(--c-t-med), box-shadow var(--c-t-med);
 }
+.c-stat:hover { transform: translateY(-3px); box-shadow: var(--c-shadow); }
+.c-stat::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--c-grad);
+}
+.c-stat .stat-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.15rem;
+    margin-bottom: .65rem;
+}
+.c-stat .label { color: var(--c-ink-400); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.c-stat .value { color: var(--c-ink-900); font-size: 1.65rem; font-weight: 800; line-height: 1.1; margin: .15rem 0; letter-spacing: -.02em; }
+.c-stat .meta  { color: var(--c-ink-400); font-size: .8rem; }
+
+.loyalty-card {
+    background: var(--c-grad);
+    color: #fff;
+    border-radius: var(--c-radius-xl);
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 18px 38px rgba(79, 70, 229, .35);
+}
+.loyalty-card::before {
+    content: '';
+    position: absolute; top: -100px; right: -100px;
+    width: 250px; height: 250px;
+    background: rgba(255, 255, 255, .12);
+    border-radius: 50%;
+}
+.loyalty-card::after {
+    content: '';
+    position: absolute; bottom: -80px; left: -80px;
+    width: 200px; height: 200px;
+    background: rgba(255, 255, 255, .08);
+    border-radius: 50%;
+}
+.loyalty-card > * { position: relative; z-index: 1; }
+.loyalty-card h5 { color: #fff; }
+.loyalty-card .pkg-row { margin-bottom: 1rem; }
+.loyalty-card .pkg-row:last-child { margin-bottom: 0; }
 
 .session-progress {
-    background: rgba(255, 255, 255, .15);
-    border-radius: 999px;
     height: 8px;
+    background: rgba(255, 255, 255, .22);
+    border-radius: var(--c-radius-pill);
     overflow: hidden;
-    margin-top: .25rem;
 }
-
 .session-progress .bar {
     height: 100%;
-    background: linear-gradient(90deg, #34d399, #10b981);
-    transition: width .4s ease;
+    background: #fff;
+    border-radius: var(--c-radius-pill);
+    transition: width .6s ease;
 }
 
 
-/* 12. Empty / alerts
- * ----------------------------------------------------------- */
+/* ============================================================
+ * 11 APPOINTMENT / BOOKING STEPPER
+ * ============================================================ */
+.service-select-card {
+    background: var(--c-surface);
+    border: 1.5px solid var(--c-ink-100);
+    border-radius: var(--c-radius-lg);
+    padding: 1.1rem;
+    cursor: pointer;
+    transition: all var(--c-t-fast);
+    height: 100%;
+}
+.service-select-card:hover { border-color: var(--c-primary); transform: translateY(-3px); box-shadow: var(--c-shadow-sm); }
+.service-select-card.selected {
+    border-color: var(--c-primary);
+    background: var(--c-primary-soft);
+}
+.service-select-card h6 { margin: 0 0 .25rem; font-size: .95rem; text-transform: none; letter-spacing: 0; }
+.service-select-card .price { color: var(--c-primary); font-weight: 700; }
+
+.stepper {
+    display: flex; flex-direction: column; gap: .4rem;
+    margin-top: .5rem;
+}
+.stepper .step {
+    display: flex; align-items: center; gap: .65rem;
+    padding: .65rem .85rem;
+    background: var(--c-surface-alt);
+    border-radius: var(--c-radius);
+    color: var(--c-ink-500);
+    font-weight: 500;
+    font-size: .88rem;
+}
+.stepper .step.active {
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
+    font-weight: 600;
+}
+.stepper .step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--c-surface);
+    color: var(--c-ink-500);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: .8rem;
+    flex-shrink: 0;
+}
+.stepper .step.active .step-num { background: var(--c-primary); color: #fff; }
+
+#slots-container { background: var(--c-surface); }
+#slots-container .slot-btn {
+    background: var(--c-surface);
+    border: 1.5px solid var(--c-ink-100);
+    color: var(--c-ink-700);
+    padding: .5rem .8rem;
+    border-radius: var(--c-radius-sm);
+    margin: .15rem;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--c-t-fast);
+}
+#slots-container .slot-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+#slots-container .slot-btn.selected { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+
+
+/* ============================================================
+ * 12 PACKAGE MODULE
+ * ============================================================ */
+/* uses .c-card + .session-progress (overridden background) */
+.c-card .session-progress {
+    background: var(--c-ink-50);
+}
+.c-card .session-progress .bar {
+    background: var(--c-grad);
+}
+
+
+/* ============================================================
+ * 13 PAYMENT MODULE
+ * ============================================================ */
+/* uses generic table + badges */
+
+
+/* ============================================================
+ * 14 PROFILE / AUTH
+ * ============================================================ */
+.form-check-input:checked { background-color: var(--c-primary); border-color: var(--c-primary); }
+.form-check-input:focus   { box-shadow: 0 0 0 3px var(--c-primary-soft); border-color: var(--c-primary); }
+
+.alert {
+    border: 0; border-left: 4px solid var(--c-primary);
+    border-radius: var(--c-radius);
+    padding: .85rem 1rem;
+    font-size: .9rem;
+}
+.alert-success { background: rgba(16,185,129,.1); color: #047857; border-left-color: var(--c-success); }
+.alert-danger  { background: rgba(239,68,68,.1);  color: #b91c1c; border-left-color: var(--c-danger); }
+
+
+/* ============================================================
+ * 15 EMPTY & LOADING
+ * ============================================================ */
 .empty-state {
     text-align: center;
     padding: 2rem 1rem;
-    color: var(--c-muted);
+    color: var(--c-ink-400);
 }
-
 .empty-state i {
     font-size: 2rem;
-    color: var(--c-muted);
-    margin-bottom: .5rem;
+    color: var(--c-ink-300);
+    margin-bottom: .6rem;
+    display: block;
 }
 
-.alert {
-    border-radius: var(--c-radius);
-    border: 1px solid transparent;
+.skeleton {
+    background: linear-gradient(90deg, var(--c-ink-50) 0%, #fff 50%, var(--c-ink-50) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: var(--c-radius-sm);
+    color: transparent !important;
 }
 
 
-/* 13. Responsive
- * ----------------------------------------------------------- */
+/* ============================================================
+ * 16 UTILITY HELPERS
+ * ============================================================ */
+@keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes spin    { to { transform: rotate(360deg); } }
+
+.rounded-lg { border-radius: var(--c-radius-lg) !important; }
+
+
+/* ============================================================
+ * 17 RESPONSIVE
+ * ============================================================ */
 @media (max-width: 991.98px) {
-    .customer-layout {
-        flex-direction: column;
-    }
-
+    .customer-layout { grid-template-columns: 1fr; }
     .customer-sidebar {
-        width: 100%;
-        min-height: auto;
-        position: relative;
+        position: static;
+        height: auto;
         flex-direction: row;
-        flex-wrap: wrap;
+        overflow-x: auto;
+        gap: .5rem;
         align-items: center;
-        padding: 1rem;
+        padding: .85rem 1rem;
+        border-bottom: 1px solid var(--c-ink-100);
+        border-right: 0;
     }
+    .customer-brand { margin: 0 1rem 0 0; padding: 0; border: 0; }
+    .customer-sidebar .nav { flex-direction: row !important; gap: .35rem; flex-wrap: nowrap; }
+    .customer-sidebar .nav-link { white-space: nowrap; padding: .45rem .85rem; }
+    .customer-sidebar .nav-link.active::before { display: none; }
+    .customer-sidebar .foot { margin-top: 0; padding-top: 0; margin-left: auto; }
+}
 
-    .customer-brand {
-        margin-bottom: 0;
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-
-    .customer-sidebar .nav {
-        flex-direction: row !important;
-        flex-wrap: wrap;
-        margin-left: auto;
-    }
-
-    .customer-content {
-        padding: 1rem;
-    }
-
-    .customer-topbar {
-        padding: 1rem;
-    }
+@media (max-width: 575.98px) {
+    .customer-topbar { padding: 0 1rem; }
+    .customer-content { padding: 1rem; }
+    .customer-topbar h4 { font-size: .95rem; }
 }

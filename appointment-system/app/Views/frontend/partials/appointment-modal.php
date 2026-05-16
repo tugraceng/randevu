@@ -1,127 +1,167 @@
 <?php
 $loggedIn = is_customer_logged_in();
 $verified = $loggedIn && !empty(customer_user()['email_verified_at']);
+$services = $services ?? [];
+$staff    = $staff ?? [];
+$customer_packages = $customer_packages ?? [];
 ?>
 <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content appointment-modal">
-            <div class="modal-header border-0 pb-0">
+        <div class="modal-content">
+            <div class="modal-header">
                 <div>
-                    <h5 class="modal-title mb-0" id="appointmentModalLabel">Online Randevu</h5>
-                    <small class="text-muted">5 adımda randevunuzu oluşturun</small>
+                    <h5 class="modal-title mb-0" id="appointmentModalLabel"><i class="bi bi-calendar2-week me-1"></i> Online Randevu Sihirbazı</h5>
+                    <small class="text-white-50">6 adımda saniyeler içinde randevunuzu oluşturun</small>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
             </div>
             <div class="modal-body">
                 <?php if (!$loggedIn): ?>
-                <div class="alert alert-info border-0 bg-light">
-                    <h6 class="mb-2"><i class="bi bi-person-circle me-1"></i> Randevu almak için giriş yapın</h6>
-                    <p class="mb-3 text-muted small">Randevularınızı, paketlerinizi ve ödemelerinizi takip edebilmek için üyeliğiniz gerekiyor.</p>
-                    <a href="<?= customer_url('?route=login') ?>" class="btn btn-cta btn-sm me-2">Giriş Yap</a>
-                    <a href="<?= customer_url('?route=register') ?>" class="btn btn-outline-primary btn-sm">Kayıt Ol</a>
-                </div>
-                <?php elseif (!$verified): ?>
-                <div class="alert alert-warning border-0">
-                    <h6 class="mb-2"><i class="bi bi-shield-exclamation me-1"></i> E-posta doğrulaması gerekli</h6>
-                    <p class="mb-2 text-muted small">Randevu oluşturabilmek için lütfen e-posta adresinizi doğrulayın.</p>
-                    <a href="<?= customer_url('?route=verify-email') ?>" class="btn btn-warning btn-sm">Doğrula</a>
-                </div>
-                <?php else: ?>
-                <form id="appointment-form" data-step="1">
-                    <?= csrf_field() ?>
-                    <div class="stepper-bar">
-                        <span class="step active" data-step="1"><span class="step-num">1</span>Hizmet</span>
-                        <span class="step" data-step="2"><span class="step-num">2</span>Personel</span>
-                        <span class="step" data-step="3"><span class="step-num">3</span>Tarih &amp; Saat</span>
-                        <span class="step" data-step="4"><span class="step-num">4</span>Onay</span>
+                    <div class="p-4 text-center">
+                        <div class="brand-icon-inline mx-auto mb-3" style="width:56px;height:56px;font-size:1.4rem;"><i class="bi bi-person-circle"></i></div>
+                        <h5>Randevu için giriş yapın</h5>
+                        <p class="text-muted">Randevularınızı, paketlerinizi ve ödemelerinizi takip edebilmek için üyeliğiniz gerekiyor.</p>
+                        <a href="<?= customer_url('?route=login') ?>" class="btn btn-cta me-2">Giriş Yap</a>
+                        <a href="<?= customer_url('?route=register') ?>" class="btn btn-outline-primary">Üye Ol</a>
                     </div>
+                <?php elseif (!$verified): ?>
+                    <div class="p-4 text-center">
+                        <div class="brand-icon-inline mx-auto mb-3" style="width:56px;height:56px;font-size:1.4rem;background:var(--warning);"><i class="bi bi-shield-exclamation"></i></div>
+                        <h5>E-posta doğrulaması gerekli</h5>
+                        <p class="text-muted">Randevu oluşturabilmek için lütfen e-posta adresinizi doğrulayın.</p>
+                        <a href="<?= customer_url('?route=verify-email') ?>" class="btn btn-warning">Doğrula</a>
+                    </div>
+                <?php else: ?>
 
-                    <div class="row g-4">
-                        <div class="col-lg-7">
-                            <div class="step-panel" data-panel="1">
-                                <label class="form-label">Hizmet seçin</label>
-                                <select name="service_id" id="service_id" class="form-select form-select-lg" required>
-                                    <option value="">— Hizmet seçin —</option>
+                <div class="stepper-shell">
+                    <!-- MAIN ============================================== -->
+                    <div class="stepper-main">
+
+                        <div class="stepper-progress">
+                            <div class="step active"><span class="step-num">1</span><span>Hizmet</span></div>
+                            <div class="step"><span class="step-num">2</span><span>Personel</span></div>
+                            <div class="step"><span class="step-num">3</span><span>Tarih</span></div>
+                            <div class="step"><span class="step-num">4</span><span>Saat</span></div>
+                            <div class="step"><span class="step-num">5</span><span>Not</span></div>
+                            <div class="step"><span class="step-num">6</span><span>Onay</span></div>
+                        </div>
+
+                        <form method="post" action="<?= customer_url('?route=appointments/store') ?>" data-appointment-form>
+                            <?= csrf_field() ?>
+                            <input type="hidden" data-bind="service_id"        name="service_id">
+                            <input type="hidden" data-bind="staff_id"          name="staff_id">
+                            <input type="hidden" data-bind="appointment_date"  name="appointment_date">
+                            <input type="hidden" data-bind="start_time"        name="start_time">
+                            <input type="hidden" data-bind="notes"             name="notes">
+
+                            <!-- STEP 1 — Service ============================ -->
+                            <div class="stepper-panel active" data-step="1">
+                                <h6 class="text-muted mb-3" style="text-transform:none;letter-spacing:0;font-weight:500;">Hizmet seçin</h6>
+                                <div class="choice-grid">
                                     <?php foreach ($services as $svc): ?>
-                                    <option value="<?= (int)$svc['id'] ?>"
-                                            data-price="<?= e((string)$svc['price']) ?>"
-                                            data-duration="<?= (int)($svc['duration_minutes'] ?? 30) ?>">
-                                        <?= e($svc['name']) ?> — <?= format_money((float)$svc['price']) ?>
-                                    </option>
+                                    <div class="choice-tile"
+                                         data-choose-service
+                                         data-id="<?= (int)$svc['id'] ?>"
+                                         data-name="<?= e($svc['name']) ?>"
+                                         data-price="<?= format_money((float)$svc['price']) ?>"
+                                         data-duration="<?= (int)($svc['duration_minutes'] ?? 30) ?>">
+                                        <h6><?= e($svc['name']) ?></h6>
+                                        <small><i class="bi bi-clock me-1"></i><?= (int)($svc['duration_minutes'] ?? 30) ?> dk</small><br>
+                                        <strong class="text-primary"><?= format_money((float)$svc['price']) ?></strong>
+                                    </div>
                                     <?php endforeach; ?>
-                                </select>
+                                </div>
+                            </div>
+
+                            <!-- STEP 2 — Staff ============================ -->
+                            <div class="stepper-panel" data-step="2">
+                                <h6 class="text-muted mb-3" style="text-transform:none;letter-spacing:0;font-weight:500;">Personel seçin</h6>
+                                <div class="choice-grid">
+                                    <div class="choice-tile" data-choose-staff data-id="" data-name="Sistem önerir">
+                                        <h6><i class="bi bi-shuffle me-1"></i> Farketmez</h6>
+                                        <small>Sistem en uygun personeli atar</small>
+                                    </div>
+                                    <?php foreach ($staff as $m): ?>
+                                    <div class="choice-tile" data-choose-staff
+                                         data-id="<?= (int)$m['id'] ?>"
+                                         data-name="<?= e($m['name']) ?>">
+                                        <h6><?= e($m['name']) ?></h6>
+                                        <small><?= e($m['title'] ?? '') ?></small>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+
+                            <!-- STEP 3 — Date ============================ -->
+                            <div class="stepper-panel" data-step="3">
+                                <h6 class="text-muted mb-3" style="text-transform:none;letter-spacing:0;font-weight:500;">Randevu tarihinizi seçin</h6>
+                                <input type="date" class="form-control" data-step-date min="<?= date('Y-m-d') ?>">
+                            </div>
+
+                            <!-- STEP 4 — Time slots ============================ -->
+                            <div class="stepper-panel" data-step="4">
+                                <h6 class="text-muted mb-3" style="text-transform:none;letter-spacing:0;font-weight:500;">Uygun saatler</h6>
+                                <div class="slot-grid" data-slot-grid>
+                                    <small class="text-muted">Lütfen önce tarih seçin.</small>
+                                </div>
+                            </div>
+
+                            <!-- STEP 5 — Note ============================ -->
+                            <div class="stepper-panel" data-step="5">
+                                <h6 class="text-muted mb-3" style="text-transform:none;letter-spacing:0;font-weight:500;">Eklemek istediğiniz bir not?</h6>
+                                <textarea class="form-control" rows="4" data-step-note placeholder="Örn: Alerji bilgim..."></textarea>
                                 <?php if (!empty($customer_packages)): ?>
                                 <label class="form-label mt-3">Paket kullan (opsiyonel)</label>
-                                <select name="customer_package_id" id="customer_package_id" class="form-select">
+                                <select name="customer_package_id" class="form-select">
                                     <option value="">Paket kullanma</option>
                                     <?php foreach ($customer_packages as $cp): ?>
-                                    <option value="<?= (int)$cp['id'] ?>" data-service-id="<?= (int)$cp['service_id'] ?>" data-remaining-sessions="<?= (int)$cp['remaining_sessions'] ?>">
-                                        <?= e($cp['package_name']) ?> (<?= (int)$cp['remaining_sessions'] ?> seans kaldı)
-                                    </option>
+                                    <option value="<?= (int)$cp['id'] ?>"><?= e($cp['package_name']) ?> (<?= (int)$cp['remaining_sessions'] ?> seans kaldı)</option>
                                     <?php endforeach; ?>
                                 </select>
                                 <?php endif; ?>
                             </div>
 
-                            <div class="step-panel d-none" data-panel="2">
-                                <label class="form-label">Personel</label>
-                                <select name="staff_id" id="staff_id" class="form-select form-select-lg">
-                                    <option value="">Farketmez (Sistem önersin)</option>
-                                    <?php foreach ($staff as $m): ?>
-                                    <option value="<?= (int)$m['id'] ?>"><?= e($m['name']) ?> — <?= e($m['title'] ?? '') ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <div class="step-panel d-none" data-panel="3">
-                                <div class="row g-3">
-                                    <div class="col-md-5">
-                                        <label class="form-label">Tarih</label>
-                                        <input type="date" name="appointment_date" id="appointment_date" class="form-control form-control-lg" min="<?= date('Y-m-d') ?>" required>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <label class="form-label">Uygun Saatler</label>
-                                        <input type="hidden" name="start_time" id="start_time">
-                                        <div id="slots-container" class="slots-grid"></div>
-                                    </div>
-                                </div>
-                                <label class="form-label mt-3">Not (opsiyonel)</label>
-                                <textarea name="notes" class="form-control" rows="2" placeholder="Eklemek istediğiniz bir not?"></textarea>
-                            </div>
-
-                            <div class="step-panel d-none" data-panel="4">
-                                <div class="alert alert-info border-0 bg-light">
+                            <!-- STEP 6 — Confirm ============================ -->
+                            <div class="stepper-panel" data-step="6">
+                                <div class="alert alert-info border-0" style="background:var(--primary-soft);color:var(--primary);">
                                     <i class="bi bi-info-circle me-1"></i>
-                                    Bilgilerinizi kontrol edin. <strong>Randevu Oluştur</strong> butonuna bastığınızda işlem onaylanır.
+                                    Bilgilerinizi sağdaki özet kartında kontrol edin ve <strong>Randevu Oluştur</strong> butonuna basın.
+                                </div>
+                                <p class="text-muted small">Randevunuz oluşturulduktan sonra size SMS / e-posta üzerinden onay bilgisi gönderilecektir.</p>
+                            </div>
+
+                            <div class="stepper-actions">
+                                <button type="button" class="btn btn-outline-secondary" data-step-prev>
+                                    <i class="bi bi-arrow-left me-1"></i> Geri
+                                </button>
+                                <div>
+                                    <button type="button" class="btn btn-cta" data-step-next>
+                                        İleri <i class="bi bi-arrow-right ms-1"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-cta" data-step-submit style="display:none;">
+                                        <i class="bi bi-check-circle me-1"></i> Randevu Oluştur
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-lg-5">
-                            <div class="summary-card sticky-top" id="appointment-summary" style="top: 1rem;">
-                                <h6>Randevu Özeti</h6>
-                                <p class="text-muted small mb-0">Adımları doldurdukça özet otomatik güncellenir.</p>
-                            </div>
-                        </div>
+                        </form>
                     </div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-secondary" id="btn-prev" disabled>
-                            <i class="bi bi-arrow-left me-1"></i> Geri
-                        </button>
-                        <div>
-                            <button type="button" class="btn btn-cta" id="btn-next">
-                                İleri <i class="bi bi-arrow-right ms-1"></i>
-                            </button>
-                            <button type="submit" class="btn btn-cta d-none" id="btn-submit">
-                                <i class="bi bi-check-circle me-1"></i> Randevu Oluştur
-                            </button>
+                    <!-- ASIDE ============================================== -->
+                    <aside class="stepper-aside">
+                        <div class="summary-card">
+                            <h6>Randevu Özeti</h6>
+                            <div class="row-line"><span class="label">Hizmet</span><span class="value muted" data-sum="service">—</span></div>
+                            <div class="row-line"><span class="label">Personel</span><span class="value muted" data-sum="staff">—</span></div>
+                            <div class="row-line"><span class="label">Tarih</span><span class="value muted" data-sum="date">—</span></div>
+                            <div class="row-line"><span class="label">Saat</span><span class="value muted" data-sum="time">—</span></div>
+                            <div class="total"><span>Tahmini Tutar</span><strong data-sum-total>—</strong></div>
                         </div>
-                    </div>
-                </form>
-                <div id="appointment-loading" class="text-center py-4 d-none">
-                    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Yükleniyor</span></div>
+                        <div class="mt-3 small text-muted">
+                            <i class="bi bi-shield-check text-success me-1"></i> Güvenli online randevu sistemi.
+                        </div>
+                    </aside>
                 </div>
+
                 <?php endif; ?>
             </div>
         </div>

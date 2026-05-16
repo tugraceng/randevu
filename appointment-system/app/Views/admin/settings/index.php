@@ -1,59 +1,56 @@
 <?php require APP_PATH . '/Views/admin/partials/header.php'; $s = $settings; ?>
 
-<div class="row g-4">
-    <div class="col-lg-3">
-        <div class="panel">
-            <div class="panel-body p-2">
-                <ul class="nav nav-pills flex-column gap-1" role="tablist">
-                    <?php
-                    $tabs = [
-                        'general'   => ['Genel Ayarlar',     'bi-sliders'],
-                        'theme'     => ['Tema &amp; Renkler', 'bi-palette'],
-                        'rules'     => ['Randevu Kuralları', 'bi-calendar-week'],
-                        'mail'      => ['SMTP / Mail',       'bi-envelope'],
-                        'netgsm'    => ['NetGSM SMS',        'bi-chat-dots'],
-                        'whatsapp'  => ['WhatsApp Business', 'bi-whatsapp'],
-                        'payment'   => ['Ödeme Sağlayıcıları','bi-credit-card'],
-                        'seo'       => ['SEO &amp; Sosyal',  'bi-search'],
-                    ];
-                    $first = true;
-                    foreach ($tabs as $key => [$label, $icon]):
-                    ?>
-                    <li class="nav-item">
-                        <button class="nav-link text-start <?= $first ? 'active' : '' ?>" data-bs-toggle="pill" data-bs-target="#tab-<?= e($key) ?>" type="button">
-                            <i class="bi <?= e($icon) ?> me-2"></i><?= $label ?>
-                        </button>
-                    </li>
-                    <?php $first = false; endforeach; ?>
-                </ul>
-            </div>
+<div class="settings-shell">
+    <div>
+        <div class="settings-tabs mb-3">
+            <ul class="nav flex-column gap-1" role="tablist">
+                <?php
+                $tabs = [
+                    'general'   => ['Genel Ayarlar',     'bi-sliders'],
+                    'theme'     => ['Tema &amp; Renkler', 'bi-palette'],
+                    'rules'     => ['Randevu Kuralları', 'bi-calendar-week'],
+                    'mail'      => ['SMTP / Mail',       'bi-envelope'],
+                    'netgsm'    => ['NetGSM SMS',        'bi-chat-dots'],
+                    'whatsapp'  => ['WhatsApp Business', 'bi-whatsapp'],
+                    'payment'   => ['Ödeme Sağlayıcıları','bi-credit-card'],
+                    'seo'       => ['SEO &amp; Sosyal',  'bi-search'],
+                ];
+                $first = true;
+                foreach ($tabs as $key => [$label, $icon]):
+                ?>
+                <li class="nav-item">
+                    <button class="nav-link <?= $first ? 'active' : '' ?>" data-bs-toggle="pill" data-bs-target="#tab-<?= e($key) ?>" type="button">
+                        <i class="bi <?= e($icon) ?>"></i><span><?= $label ?></span>
+                    </button>
+                </li>
+                <?php $first = false; endforeach; ?>
+            </ul>
         </div>
 
-        <div class="panel mt-3">
+        <div class="panel">
             <div class="panel-header"><h6><i class="bi bi-braces me-1"></i> Şablon Değişkenleri</h6></div>
             <div class="panel-body">
-                <p class="small text-muted">Mesaj şablonlarınızda aşağıdaki değişkenleri kullanabilirsiniz:</p>
-                <div class="template-vars">
+                <p class="small text-muted">Mesaj şablonlarınızda kullanabileceğiniz değişkenler:</p>
+                <div class="var-panel" style="background:#fff;border:0;padding:.25rem;">
                     <?php foreach (['{name}','{phone}','{email}','{date}','{time}','{service}','{staff}','{package}','{remaining_sessions}','{payment_amount}','{business_name}'] as $v): ?>
-                    <span class="var"><?= e($v) ?></span>
+                    <span class="var-btn"><?= e($v) ?></span>
                     <?php endforeach; ?>
                 </div>
-                <a href="<?= admin_url('?route=messages') ?>" class="btn btn-soft btn-sm mt-3 w-100">Şablonları Düzenle</a>
+                <a href="<?= admin_url('?route=messages') ?>" class="btn btn-outline-primary btn-sm mt-3 w-100">Şablonları Düzenle</a>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-9">
+    <div>
         <form method="post" action="<?= admin_url('?route=settings/save') ?>">
             <?= csrf_field() ?>
             <div class="tab-content">
 
                 <!-- GENERAL ============================================== -->
                 <div class="tab-pane fade show active" id="tab-general">
-                    <div class="panel">
-                        <div class="panel-header"><h6>Genel Site Ayarları</h6></div>
-                        <div class="panel-body settings-section">
-                            <p class="settings-help">İşletmenizin temel bilgilerini ayarlayın. Bu alanlar tüm panelde ve frontend'de kullanılır.</p>
+                    <div class="settings-card">
+                        <h5>Genel Site Ayarları</h5>
+                        <p class="lead-help">İşletmenizin temel bilgilerini ayarlayın. Bu alanlar tüm panelde ve frontend'de kullanılır.</p>
                             <div class="row g-3">
                                 <div class="col-md-6"><label class="form-label">Site Başlığı</label><input class="form-control" name="settings[site_title]" value="<?= e($s['site_title'] ?? '') ?>"></div>
                                 <div class="col-md-6"><label class="form-label">İşletme Adı</label><input class="form-control" name="settings[business_name]" value="<?= e($s['business_name'] ?? '') ?>"></div>
@@ -64,16 +61,14 @@
                                 <div class="col-12"><label class="form-label">Adres</label><input class="form-control" name="settings[site_address]" value="<?= e($s['site_address'] ?? '') ?>"></div>
                                 <div class="col-12"><label class="form-label">Harita Embed Kodu</label><textarea class="form-control" rows="3" name="settings[map_embed]" placeholder="Google Maps iframe etiketi"><?= e($s['map_embed'] ?? '') ?></textarea><small class="form-help">Boş bırakılırsa Google Maps adresten otomatik üretilir.</small></div>
                             </div>
-                        </div>
                     </div>
                 </div>
 
                 <!-- THEME ============================================== -->
                 <div class="tab-pane fade" id="tab-theme">
-                    <div class="panel">
-                        <div class="panel-header"><h6>Tema &amp; Marka</h6></div>
-                        <div class="panel-body settings-section">
-                            <p class="settings-help">Frontend rengini sektörünüze göre özelleştirin. Renkler tüm tanıtım sitesine uygulanır.</p>
+                    <div class="settings-card">
+                        <h5>Tema &amp; Marka</h5>
+                        <p class="lead-help">Frontend rengini sektörünüze göre özelleştirin. Renkler tüm tanıtım sitesine uygulanır.</p>
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">Birincil Renk</label>
@@ -95,16 +90,14 @@
                                 <div class="col-md-3"><label class="form-label">İstatistik: Uzman</label><input class="form-control" name="settings[stat_experts]" value="<?= e($s['stat_experts'] ?? '') ?>"></div>
                                 <div class="col-md-3"><label class="form-label">İstatistik: Ödül</label><input class="form-control" name="settings[stat_awards]" value="<?= e($s['stat_awards'] ?? '') ?>"></div>
                             </div>
-                        </div>
                     </div>
                 </div>
 
                 <!-- RULES ============================================== -->
                 <div class="tab-pane fade" id="tab-rules">
-                    <div class="panel">
-                        <div class="panel-header"><h6>Randevu Kuralları</h6></div>
-                        <div class="panel-body settings-section">
-                            <p class="settings-help">Randevu alımı için zaman kısıtlamalarını belirleyin.</p>
+                    <div class="settings-card">
+                        <h5>Randevu Kuralları</h5>
+                        <p class="lead-help">Randevu alımı için zaman kısıtlamalarını belirleyin.</p>
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label">Minimum saat sonra randevu</label>
@@ -144,21 +137,25 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
                     </div>
                 </div>
 
                 <!-- MAIL ============================================== -->
                 <div class="tab-pane fade" id="tab-mail">
-                    <div class="integration-card">
-                        <div class="head">
+                    <div class="settings-card">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h6 class="mb-1"><i class="bi bi-envelope me-1"></i> SMTP / E-posta</h6>
-                                <small class="text-muted">PHPMailer ile SMTP üzerinden e-posta gönderimi.</small>
+                                <h5><i class="bi bi-envelope me-1"></i> SMTP / E-posta</h5>
+                                <p class="lead-help mb-0">PHPMailer ile SMTP üzerinden e-posta gönderimi.</p>
                             </div>
-                            <span class="status-pill <?= !empty($s['mail_host']) ? 'connected' : 'warning' ?>">
-                                <span class="dot"></span><?= !empty($s['mail_host']) ? 'Yapılandırılmış' : 'Eksik' ?>
+                            <span class="status-pill <?= !empty($s['mail_host']) ? 'status-approved' : 'status-pending' ?>">
+                                <?= !empty($s['mail_host']) ? 'Yapılandırılmış' : 'Eksik' ?>
                             </span>
+                        </div>
+                        <div class="test-btn-row mb-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-test-endpoint="<?= admin_url('?route=settings/test/mail') ?>">
+                                <i class="bi bi-send me-1"></i> Test E-postası Gönder
+                            </button>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-8"><label class="form-label">SMTP Host</label><input class="form-control" name="settings[mail_host]" value="<?= e($s['mail_host'] ?? '') ?>" placeholder="smtp.example.com"></div>
@@ -174,15 +171,20 @@
 
                 <!-- NETGSM ============================================== -->
                 <div class="tab-pane fade" id="tab-netgsm">
-                    <div class="integration-card">
-                        <div class="head">
+                    <div class="settings-card">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h6 class="mb-1"><i class="bi bi-chat-dots me-1"></i> NetGSM SMS</h6>
-                                <small class="text-muted">NetGSM XML API üzerinden SMS gönderimi.</small>
+                                <h5><i class="bi bi-chat-dots me-1"></i> NetGSM SMS</h5>
+                                <p class="lead-help mb-0">NetGSM XML API üzerinden SMS gönderimi.</p>
                             </div>
-                            <span class="status-pill <?= ($s['netgsm_status'] ?? 0) ? 'connected' : 'warning' ?>">
-                                <span class="dot"></span><?= ($s['netgsm_status'] ?? 0) ? 'Aktif' : 'Pasif' ?>
+                            <span class="status-pill <?= ($s['netgsm_status'] ?? 0) ? 'status-approved' : 'status-pending' ?>">
+                                <?= ($s['netgsm_status'] ?? 0) ? 'Aktif' : 'Pasif' ?>
                             </span>
+                        </div>
+                        <div class="test-btn-row mb-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-test-endpoint="<?= admin_url('?route=settings/test/netgsm') ?>">
+                                <i class="bi bi-chat-dots me-1"></i> SMS Bağlantısını Test Et
+                            </button>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6"><label class="form-label">Kullanıcı Kodu</label><input class="form-control" name="settings[netgsm_usercode]" value="<?= e($s['netgsm_usercode'] ?? '') ?>"></div>
@@ -202,15 +204,20 @@
 
                 <!-- WHATSAPP ============================================== -->
                 <div class="tab-pane fade" id="tab-whatsapp">
-                    <div class="integration-card">
-                        <div class="head">
+                    <div class="settings-card">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h6 class="mb-1"><i class="bi bi-whatsapp me-1"></i> WhatsApp Business Cloud API</h6>
-                                <small class="text-muted">Meta Cloud API üzerinden WhatsApp şablon mesajları.</small>
+                                <h5><i class="bi bi-whatsapp me-1"></i> WhatsApp Business Cloud API</h5>
+                                <p class="lead-help mb-0">Meta Cloud API üzerinden WhatsApp şablon mesajları.</p>
                             </div>
-                            <span class="status-pill <?= ($s['whatsapp_status'] ?? 0) ? 'connected' : 'warning' ?>">
-                                <span class="dot"></span><?= ($s['whatsapp_status'] ?? 0) ? 'Bağlı' : 'Yapılandırma Gerekli' ?>
+                            <span class="status-pill <?= ($s['whatsapp_status'] ?? 0) ? 'status-approved' : 'status-pending' ?>">
+                                <?= ($s['whatsapp_status'] ?? 0) ? 'Bağlı' : 'Yapılandırma Gerekli' ?>
                             </span>
+                        </div>
+                        <div class="test-btn-row mb-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-test-endpoint="<?= admin_url('?route=settings/test/whatsapp') ?>">
+                                <i class="bi bi-whatsapp me-1"></i> WhatsApp Bağlantısını Test Et
+                            </button>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6"><label class="form-label">Phone Number ID</label><input class="form-control" name="settings[whatsapp_phone_number_id]" value="<?= e($s['whatsapp_phone_number_id'] ?? '') ?>"></div>
@@ -232,14 +239,14 @@
 
                 <!-- PAYMENT ============================================== -->
                 <div class="tab-pane fade" id="tab-payment">
-                    <div class="integration-card">
-                        <div class="head">
+                    <div class="settings-card">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h6 class="mb-1"><i class="bi bi-credit-card me-1"></i> Ödeme Sağlayıcı</h6>
-                                <small class="text-muted">İyzico veya PayTR seçin, anahtarlarınızı girin.</small>
+                                <h5><i class="bi bi-credit-card me-1"></i> Ödeme Sağlayıcı</h5>
+                                <p class="lead-help mb-0">iyzico veya PayTR seçin, anahtarlarınızı girin.</p>
                             </div>
-                            <span class="status-pill <?= ($s['payment_status'] ?? 0) ? 'connected' : 'warning' ?>">
-                                <span class="dot"></span><?= ($s['payment_status'] ?? 0) ? 'Aktif' : 'Pasif' ?>
+                            <span class="status-pill <?= ($s['payment_status'] ?? 0) ? 'status-approved' : 'status-pending' ?>">
+                                <?= ($s['payment_status'] ?? 0) ? 'Aktif' : 'Pasif' ?>
                             </span>
                         </div>
                         <div class="row g-3">
@@ -272,10 +279,9 @@
 
                 <!-- SEO ============================================== -->
                 <div class="tab-pane fade" id="tab-seo">
-                    <div class="panel">
-                        <div class="panel-header"><h6>SEO &amp; Sosyal Medya</h6></div>
-                        <div class="panel-body settings-section">
-                            <p class="settings-help">Arama motorları ve sosyal medya için meta bilgilerinizi ayarlayın.</p>
+                    <div class="settings-card">
+                        <h5>SEO &amp; Sosyal Medya</h5>
+                        <p class="lead-help">Arama motorları ve sosyal medya için meta bilgilerinizi ayarlayın.</p>
                             <div class="row g-3">
                                 <div class="col-12"><label class="form-label">SEO Başlığı</label><input class="form-control" name="settings[seo_title]" value="<?= e($s['seo_title'] ?? '') ?>"></div>
                                 <div class="col-12"><label class="form-label">SEO Açıklaması</label><textarea class="form-control" rows="2" name="settings[seo_description]"><?= e($s['seo_description'] ?? '') ?></textarea></div>
@@ -284,7 +290,6 @@
                                 <div class="col-md-6"><label class="form-label">Twitter URL</label><input class="form-control" name="settings[social_twitter]" value="<?= e($s['social_twitter'] ?? '') ?>"></div>
                                 <div class="col-md-6"><label class="form-label">YouTube URL</label><input class="form-control" name="settings[social_youtube]" value="<?= e($s['social_youtube'] ?? '') ?>"></div>
                             </div>
-                        </div>
                     </div>
                 </div>
             </div>

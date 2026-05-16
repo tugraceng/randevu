@@ -1,445 +1,457 @@
 /* ============================================================
- * RandevuTakip - Admin JS
- * SaaS-tarzı yönetim paneli etkileşimleri.
- *
- * Bölümler:
- *   1. Helpers (toast, fetch, qs)
- *   2. Sidebar toggle (mobile overlay)
- *   3. Confirm dialogs (data-confirm)
- *   4. Filter bar reset
- *   5. Template variable inserter (data-insert-var | data-template-var)
- *   6. Dashboard charts (Chart.js)
- *   7. Customer packages dynamic loader
- *   8. Appointment slots loader (admin create / edit)
- *   9. Appointment live summary card
- *  10. Inline AJAX customer create (appointment create)
- *  11. Booking summary on customer.show actions
+ * RandevuTakip — Admin Premium UX
+ *   01  Helpers ($ / $$ / fetchJSON)
+ *   02  Toast / Confirm / Loader system
+ *   03  Sidebar (mobile overlay + desktop collapse)
+ *   04  Generic confirm-on-click
+ *   05  Filter Reset & AJAX submit
+ *   06  Template Variable Inserter
+ *   07  Dashboard charts (Chart.js)
+ *   08  Customer create AJAX (Appointment screen)
+ *   09  Customer package loader (Appointment screen)
+ *   10  Form skeleton + button loading
+ *   11  Settings test buttons
+ *   12  Animated counters
  * ============================================================ */
 
 (function () {
     'use strict';
 
-    const APP_BASE = (window.APP_BASE || '').replace(/\/+$/, '');
-    const ADMIN_BASE = (window.ADMIN_BASE || '').replace(/\/+$/, '');
-
-    /* 1. Helpers
-     * ------------------------------------------------------- */
-    const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+    /* --------------------------------------------------------
+     * 01 Helpers
+     * -------------------------------------------------------- */
     const $  = (sel, ctx = document) => ctx.querySelector(sel);
+    const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
-    const fmtMoney = (n) => {
-        try { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(n); }
-        catch { return (n || 0) + ' ₺'; }
-    };
+    const CSRF = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
 
-    function ensureToastArea() {
-        let area = $('#toast-area');
+    async function fetchJSON(url, opts = {}) {
+        const isPost = (opts.method || 'GET').toUpperCase() === 'POST';
+        const headers = Object.assign({
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }, opts.headers || {});
+        if (isPost && !(opts.body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+            if (typeof opts.body === 'object') opts.body = JSON.stringify(opts.body);
+        }
+        const res = await fetch(url, { ...opts, headers });
+        const text = await res.text();
+        try { return JSON.parse(text); } catch { return { ok: res.ok, text }; }
+    }
+
+    window.Admin = { fetchJSON, toast, confirm: confirmDialog, $, $$ };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initSidebar();
+        initConfirms();
+        initFilterReset();
+        initVarInserter();
+        initDashboardCharts();
+        initCustomerCreate();
+        initCustomerPackages();
+        initFormSubmitLoaders();
+        initAnimatedCounters();
+        initSettingsTests();
+    });
+
+
+    /* --------------------------------------------------------
+     * 02 Toast / Confirm / Loader
+     * -------------------------------------------------------- */
+    function toast(message, type = 'info', timeout = 4000) {
+        let area = document.getElementById('toast-area');
         if (!area) {
             area = document.createElement('div');
             area.id = 'toast-area';
             area.className = 'toast-area';
             document.body.appendChild(area);
         }
-        return area;
-    }
-
-    function toast(message, type = 'success', timeout = 4500) {
-        const area = ensureToastArea();
+        const icons = { success: 'bi-check-circle', error: 'bi-x-octagon', warning: 'bi-exclamation-triangle', info: 'bi-info-circle' };
         const el = document.createElement('div');
-        el.className = 'toast-msg ' + type;
-        const icon = type === 'success' ? 'bi-check-circle'
-                   : type === 'danger'  ? 'bi-x-circle'
-                   : type === 'warning' ? 'bi-exclamation-triangle'
-                                        : 'bi-info-circle';
+        el.className = `toast-item ${type}`;
         el.innerHTML = `
-            <i class="bi ${icon} icon"></i>
-            <div class="flex-grow-1 small">${message}</div>
-            <button type="button" class="btn-close btn-close-sm" aria-label="Close"></button>
+            <span class="ic"><i class="bi ${icons[type] || icons.info}"></i></span>
+            <span style="flex:1">${message}</span>
+            <button class="close-btn" aria-label="Kapat"><i class="bi bi-x"></i></button>
         `;
-        el.querySelector('.btn-close').addEventListener('click', () => el.remove());
         area.appendChild(el);
-        if (timeout) setTimeout(() => el.remove(), timeout);
-        return el;
+        const remove = () => { el.style.opacity = '0'; el.style.transform = 'translateX(20px)'; setTimeout(() => el.remove(), 200); };
+        el.querySelector('.close-btn').addEventListener('click', remove);
+        if (timeout) setTimeout(remove, timeout);
     }
-    window.adminToast = toast;
 
-    /* 2. Sidebar toggle (mobile overlay)
-     * ------------------------------------------------------- */
-    function initSidebar() {
-        const sidebar = $('#adminSidebar');
-        const overlay = $('#sidebarOverlay');
-        const open    = $('#sidebarOpen');
-        const close   = $('#sidebarClose');
-        if (!sidebar) return;
-
-        const openFn = () => {
-            sidebar.classList.add('open');
-            overlay?.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        };
-        const closeFn = () => {
-            sidebar.classList.remove('open');
-            overlay?.classList.remove('show');
-            document.body.style.overflow = '';
-        };
-
-        open?.addEventListener('click', openFn);
-        close?.addEventListener('click', closeFn);
-        overlay?.addEventListener('click', closeFn);
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 992) closeFn();
+    function confirmDialog(message = 'Emin misiniz?') {
+        return new Promise((resolve) => {
+            let modal = document.getElementById('confirmModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'confirmModal';
+                modal.className = 'modal fade';
+                modal.tabIndex = -1;
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-body p-4 text-center">
+                          <div class="mb-3" style="font-size:2.4rem;color:var(--warning);"><i class="bi bi-exclamation-triangle"></i></div>
+                          <h5 class="mb-2">Onay</h5>
+                          <p class="text-muted mb-4" data-confirm-text></p>
+                          <div class="d-flex justify-content-center gap-2">
+                            <button type="button" class="btn btn-outline-secondary" data-confirm-cancel>Vazgeç</button>
+                            <button type="button" class="btn btn-danger" data-confirm-ok>Onayla</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>`;
+                document.body.appendChild(modal);
+            }
+            modal.querySelector('[data-confirm-text]').textContent = message;
+            const bsm = bootstrap.Modal.getOrCreateInstance(modal);
+            const onOk     = () => { bsm.hide(); cleanup(); resolve(true); };
+            const onCancel = () => { bsm.hide(); cleanup(); resolve(false); };
+            const okBtn    = modal.querySelector('[data-confirm-ok]');
+            const cnBtn    = modal.querySelector('[data-confirm-cancel]');
+            const cleanup  = () => {
+                okBtn.removeEventListener('click', onOk);
+                cnBtn.removeEventListener('click', onCancel);
+            };
+            okBtn.addEventListener('click', onOk);
+            cnBtn.addEventListener('click', onCancel);
+            bsm.show();
         });
     }
 
-    /* 3. Confirm dialogs
-     * ------------------------------------------------------- */
-    function initConfirm() {
-        document.addEventListener('click', e => {
+
+    /* --------------------------------------------------------
+     * 03 Sidebar (mobile overlay + desktop collapse)
+     * -------------------------------------------------------- */
+    function initSidebar() {
+        const shell    = $('.admin-shell');
+        const sidebar  = $('#adminSidebar');
+        const overlay  = $('#sidebarOverlay');
+        const btnOpen  = $('#sidebarOpen');
+        const btnClose = $('#sidebarClose');
+
+        const isMobile = () => window.innerWidth < 992;
+
+        btnOpen?.addEventListener('click', () => {
+            if (isMobile()) {
+                sidebar.classList.add('show');
+                overlay?.classList.add('active');
+            } else {
+                shell.classList.toggle('sidebar-collapsed');
+                localStorage.setItem('admin_sb_collapsed', shell.classList.contains('sidebar-collapsed') ? '1' : '0');
+            }
+        });
+        btnClose?.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            overlay?.classList.remove('active');
+        });
+        overlay?.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            overlay.classList.remove('active');
+        });
+
+        if (!isMobile() && localStorage.getItem('admin_sb_collapsed') === '1') {
+            shell?.classList.add('sidebar-collapsed');
+        }
+        window.addEventListener('resize', () => {
+            if (isMobile()) {
+                sidebar.classList.remove('show');
+                overlay?.classList.remove('active');
+            }
+        });
+    }
+
+
+    /* --------------------------------------------------------
+     * 04 Generic confirm-on-click for [data-confirm] elements
+     * -------------------------------------------------------- */
+    function initConfirms() {
+        document.body.addEventListener('click', async (e) => {
             const el = e.target.closest('[data-confirm]');
             if (!el) return;
-            const msg = el.dataset.confirm || 'Bu işlemi yapmak istediğinize emin misiniz?';
-            if (!window.confirm(msg)) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
+            e.preventDefault();
+            const message = el.getAttribute('data-confirm') || 'Devam edilsin mi?';
+            const ok = await confirmDialog(message);
+            if (!ok) return;
+            if (el.tagName === 'FORM') { el.submit(); return; }
+            const form = el.closest('form');
+            if (form) { form.submit(); return; }
+            if (el.tagName === 'A' && el.href) {
+                window.location.href = el.href;
             }
-        }, true);
-    }
-
-    /* 4. Filter bar reset
-     * ------------------------------------------------------- */
-    function initFilterReset() {
-        $$('[data-filter-reset]').forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.preventDefault();
-                const target = btn.dataset.filterReset || 'form';
-                const form = btn.closest(target);
-                if (!form) return;
-                form.querySelectorAll('input, select').forEach(input => {
-                    if (input.type === 'hidden') return;
-                    if (input.tagName === 'SELECT') input.selectedIndex = 0;
-                    else input.value = '';
-                });
-                if (btn.dataset.submit !== 'false') form.submit();
-            });
         });
     }
 
-    /* 5. Template variable inserter
-     * ------------------------------------------------------- */
+
+    /* --------------------------------------------------------
+     * 05 Filter reset + auto-submit on change (date/select)
+     * -------------------------------------------------------- */
+    function initFilterReset() {
+        $$('[data-filter-reset]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const form = btn.closest('form');
+                if (!form) return;
+                form.querySelectorAll('input, select').forEach(el => {
+                    if (el.type === 'hidden') return;
+                    if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
+                    else el.value = '';
+                });
+                form.submit();
+            });
+        });
+
+        $$('form[data-auto-filter] select, form[data-auto-filter] input[type="date"]').forEach(el => {
+            el.addEventListener('change', () => el.form.submit());
+        });
+    }
+
+
+    /* --------------------------------------------------------
+     * 06 Template variable inserter (Messages screen)
+     * -------------------------------------------------------- */
     function initVarInserter() {
-        document.addEventListener('click', e => {
+        document.body.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-insert-var], [data-template-var]');
             if (!btn) return;
             e.preventDefault();
-            const variable = btn.dataset.insertVar || btn.dataset.templateVar || '';
-            const targetSel = btn.dataset.target || '';
-            let target = targetSel ? document.querySelector(targetSel) : null;
-            if (!target) {
-                const wrap = btn.closest('form, .template-card');
-                target = wrap?.querySelector('textarea, [contenteditable], input[name="body"], input[name="content"]');
-            }
-            if (!target) return;
-            const v = variable.startsWith('{') ? variable : ('{' + variable + '}');
-            if ('value' in target) {
-                const start = target.selectionStart ?? target.value.length;
-                const end = target.selectionEnd ?? target.value.length;
-                target.value = target.value.substring(0, start) + v + target.value.substring(end);
-                target.focus();
-                target.selectionStart = target.selectionEnd = start + v.length;
-            } else {
-                target.textContent = (target.textContent || '') + v;
-            }
+            const variable = btn.getAttribute('data-insert-var') || btn.getAttribute('data-template-var');
+            const targetSel = btn.getAttribute('data-target') || '[data-template-body]';
+            const ta = document.querySelector(targetSel);
+            if (!ta || !variable) return;
+            const pos = ta.selectionStart || ta.value.length;
+            ta.value = ta.value.slice(0, pos) + variable + ta.value.slice(pos);
+            ta.focus();
+            const newPos = pos + variable.length;
+            ta.setSelectionRange(newPos, newPos);
+            toast(`${variable} eklendi`, 'success', 1800);
         });
     }
 
-    /* 6. Dashboard charts (Chart.js)
-     * ------------------------------------------------------- */
-    async function loadDashboardCharts() {
-        if (!document.getElementById('dashboardCharts') || !window.Chart) return;
-        try {
-            const url = (ADMIN_BASE || '') + '?route=api/charts';
-            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-            const data = await res.json();
-            renderChart('chartDaily', 'line',
-                (data.daily || []).map(r => r.d),
-                (data.daily || []).map(r => r.cnt),
-                'Günlük Randevu');
-            renderChart('chartService', 'doughnut',
-                (data.by_service || []).map(r => r.label),
-                (data.by_service || []).map(r => r.cnt));
-            renderChart('chartStaff', 'bar',
-                (data.by_staff || []).map(r => r.label),
-                (data.by_staff || []).map(r => r.cnt));
-            renderChart('chartPayment', 'pie',
-                (data.payments || []).map(r => r.label),
-                (data.payments || []).map(r => r.cnt));
-            renderChart('chartPackage', 'bar',
-                (data.packages || []).map(r => r.label),
-                (data.packages || []).map(r => r.cnt),
-                'Paket Satış');
-        } catch (e) {
-            console.warn('Chart yükleme hatası', e);
-        }
+
+    /* --------------------------------------------------------
+     * 07 Dashboard charts
+     * -------------------------------------------------------- */
+    function initDashboardCharts() {
+        if (!window.Chart) return;
+
+        Chart.defaults.font.family = "Inter, sans-serif";
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
+
+        const baseEndpoint = (window.APP_BASE || '/') + 'admin/?route=dashboard/chart-data';
+        const charts = {
+            weeklyAppointments: { canvas: 'chartWeekly',  type: 'line' },
+            serviceBreakdown:   { canvas: 'chartService', type: 'doughnut' },
+            staffPerformance:   { canvas: 'chartStaff',   type: 'bar' },
+            paymentStatus:      { canvas: 'chartPayment', type: 'doughnut' }
+        };
+
+        Object.entries(charts).forEach(([key, def]) => {
+            const canvas = document.getElementById(def.canvas);
+            if (!canvas) return;
+            fetchJSON(`${baseEndpoint}&type=${key}`)
+                .then(j => renderChart(canvas, def.type, j))
+                .catch(() => {});
+        });
     }
 
-    function renderChart(id, type, labels, values, label = '') {
-        const el = document.getElementById(id);
-        if (!el || !window.Chart) return;
-        const palette = ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316'];
-        const single = type === 'doughnut' || type === 'pie';
-        const ctx = el.getContext ? el.getContext('2d') : el;
-        if (el._chartInstance) el._chartInstance.destroy();
-        el._chartInstance = new Chart(ctx, {
-            type,
-            data: {
-                labels,
-                datasets: [{
-                    label: label || id,
-                    data: values,
-                    backgroundColor: single ? palette : 'rgba(79,70,229,.4)',
-                    borderColor: single ? '#fff' : '#4f46e5',
-                    borderWidth: single ? 2 : 2,
-                    fill: type === 'line',
-                    tension: .35,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#4f46e5'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: single, position: 'bottom', labels: { font: { size: 11 } } }
+    function renderChart(canvas, type, data) {
+        if (!data || (!data.labels && !data.datasets)) return;
+        const ctx = canvas.getContext('2d');
+        const colors = ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+        let cfg;
+        if (type === 'doughnut') {
+            cfg = {
+                type, data: {
+                    labels: data.labels || [],
+                    datasets: [{
+                        data: data.data || data.datasets?.[0]?.data || [],
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                    }]
                 },
-                scales: single ? {} : {
-                    x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.06)' }, ticks: { precision: 0 } }
+                options: { plugins: { legend: { position: 'bottom' } }, cutout: '66%' }
+            };
+        } else if (type === 'line') {
+            const grad = ctx.createLinearGradient(0, 0, 0, 260);
+            grad.addColorStop(0, 'rgba(79,70,229,.35)');
+            grad.addColorStop(1, 'rgba(79,70,229,0)');
+            cfg = {
+                type, data: {
+                    labels: data.labels || [],
+                    datasets: [{
+                        label: data.label || 'Randevular',
+                        data: data.data || [],
+                        borderColor: '#4f46e5',
+                        backgroundColor: grad,
+                        borderWidth: 3,
+                        tension: .4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' } }, x: { grid: { display: false } } }
                 }
-            }
-        });
-    }
-
-    /* 7. Customer packages dynamic loader
-     * ------------------------------------------------------- */
-    function initCustomerPackages() {
-        const customerSelect = document.getElementById('customer_id');
-        if (!customerSelect || !customerSelect.dataset.packagesUrl) return;
-
-        async function load() {
-            const pkg = document.getElementById('customer_package_id');
-            if (!pkg || !customerSelect.value) return;
-            try {
-                const url = customerSelect.dataset.packagesUrl + '&customer_id=' + encodeURIComponent(customerSelect.value);
-                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                const data = await res.json();
-                pkg.innerHTML = '<option value="">Paket kullanma</option>';
-                (data.packages || []).forEach(p => {
-                    const o = document.createElement('option');
-                    o.value = p.id;
-                    o.textContent = `${p.package_name} — ${p.remaining_sessions} seans kaldı`;
-                    o.dataset.serviceId = p.service_id;
-                    o.dataset.remainingSessions = p.remaining_sessions;
-                    pkg.appendChild(o);
-                });
-                updateSummary();
-            } catch (e) {
-                console.warn('Paket yüklenemedi', e);
-            }
-        }
-
-        customerSelect.addEventListener('change', () => { load(); updateSummary(); });
-
-        const pkgSel = document.getElementById('customer_package_id');
-        pkgSel?.addEventListener('change', () => {
-            const opt = pkgSel.selectedOptions[0];
-            const sid = opt?.dataset.serviceId;
-            if (sid) {
-                const svc = document.getElementById('service_id');
-                if (svc) {
-                    const o = Array.from(svc.options).find(o => o.value === sid);
-                    if (o) { svc.value = sid; svc.dispatchEvent(new Event('change')); }
+            };
+        } else {
+            cfg = {
+                type, data: {
+                    labels: data.labels || [],
+                    datasets: [{
+                        label: data.label || '',
+                        data: data.data || [],
+                        backgroundColor: colors[0],
+                        borderRadius: 8,
+                        maxBarThickness: 36
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' } }, x: { grid: { display: false } } }
                 }
-            }
-            updateSummary();
-        });
-
-        if (customerSelect.value) load();
-    }
-
-    /* 8. Appointment slots loader (admin)
-     * ------------------------------------------------------- */
-    async function loadAdminSlots() {
-        const service = document.getElementById('service_id');
-        const staff   = document.getElementById('staff_id');
-        const date    = document.getElementById('appointment_date');
-        const container = document.getElementById('slots-container');
-        if (!service?.value || !date?.value || !container) return;
-        container.innerHTML = '<small class="text-muted">Saatler yükleniyor...</small>';
-        const params = new URLSearchParams({
-            service_id: service.value,
-            date: date.value,
-            staff_id: staff?.value || ''
-        });
-        try {
-            const res = await fetch(`${APP_BASE}/api/slots?${params.toString()}`, { headers: { 'Accept': 'application/json' } });
-            const data = await res.json();
-            container.innerHTML = '';
-            if (!data.slots || data.slots.length === 0) {
-                container.innerHTML = '<p class="text-muted small mb-0">Bu tarihte uygun saat bulunamadı.</p>';
-                return;
-            }
-            data.slots.forEach(slot => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'slot-btn';
-                btn.textContent = slot.start;
-                btn.addEventListener('click', () => {
-                    container.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    const startTime = document.getElementById('start_time');
-                    if (startTime) startTime.value = slot.start;
-                    updateSummary();
-                });
-                container.appendChild(btn);
-            });
-        } catch (e) {
-            container.innerHTML = '<p class="text-danger small mb-0">Saatler alınamadı.</p>';
+            };
         }
+        new Chart(canvas, cfg);
     }
 
-    function initAdminSlots() {
-        const service = document.getElementById('service_id');
-        const staff   = document.getElementById('staff_id');
-        const date    = document.getElementById('appointment_date');
-        if (!service && !staff && !date) return;
-        service?.addEventListener('change', () => { loadAdminSlots(); updateSummary(); });
-        staff?.addEventListener('change', () => { loadAdminSlots(); updateSummary(); });
-        date?.addEventListener('change', () => { loadAdminSlots(); updateSummary(); });
-    }
 
-    /* 9. Appointment live summary card
-     * ------------------------------------------------------- */
-    function updateSummary() {
-        const summary = document.getElementById('appointment-summary');
-        if (!summary) return;
-        const customer = document.getElementById('customer_id');
-        const service  = document.getElementById('service_id');
-        const staff    = document.getElementById('staff_id');
-        const date     = document.getElementById('appointment_date');
-        const startTime = document.getElementById('start_time');
-        const pkg      = document.getElementById('customer_package_id');
-        const deposit  = document.querySelector('input[name="deposit_amount"]');
-        const payReq   = document.querySelector('input[name="payment_required"]');
-
-        const cOpt = customer?.selectedOptions[0];
-        const sOpt = service?.selectedOptions[0];
-        const stOpt = staff?.selectedOptions[0];
-        const pOpt = pkg?.selectedOptions[0];
-
-        const customerLabel = cOpt && cOpt.value ? cOpt.textContent.trim() : '—';
-        const serviceLabel  = sOpt && sOpt.value ? sOpt.textContent.trim() : '—';
-        const staffLabel    = stOpt && stOpt.value ? stOpt.textContent.trim() : 'Farketmez';
-        const pkgLabel      = pOpt && pOpt.value ? pOpt.textContent.trim() : 'Yok';
-        const remaining     = pOpt?.dataset.remainingSessions || '—';
-        const paymentLabel  = payReq?.checked
-            ? 'Ödeme bekliyor' + (deposit?.value ? ` · Kapora ${fmtMoney(parseFloat(deposit.value))}` : '')
-            : 'Ödeme gerekmiyor';
-
-        const rows = [
-            ['Müşteri',  customerLabel],
-            ['Hizmet',   serviceLabel],
-            ['Personel', staffLabel],
-            ['Tarih',    date?.value || '—'],
-            ['Saat',     startTime?.value || '—'],
-            ['Paket',    pkgLabel],
-            ['Kalan Seans', pOpt && pOpt.value ? remaining + ' seans' : '—'],
-            ['Ödeme',    paymentLabel]
-        ];
-        summary.innerHTML = `
-            <h6 class="fw-semibold mb-3 text-muted small text-uppercase">Canlı Özet</h6>
-            ${rows.map(r => `
-                <div class="d-flex justify-content-between py-1 border-bottom border-light small">
-                    <span class="text-muted">${r[0]}</span>
-                    <span class="fw-semibold text-end">${r[1]}</span>
-                </div>
-            `).join('')}
-        `;
-    }
-
-    function initSummary() {
-        if (!document.getElementById('appointment-summary')) return;
-        document.querySelectorAll('#appointment-form input, #appointment-form select')
-            .forEach(el => el.addEventListener('change', updateSummary));
-        document.querySelectorAll('#appointment-form input[type="checkbox"], #appointment-form input[type="number"]')
-            .forEach(el => el.addEventListener('input', updateSummary));
-        updateSummary();
-    }
-
-    /* 10. Inline AJAX customer create
-     * ------------------------------------------------------- */
-    function initInlineCustomerCreate() {
-        const form = document.getElementById('admin-customer-create-form');
-        if (!form || !window.ADMIN_CUSTOMER_CREATE_URL) return;
-
-        form.addEventListener('submit', async e => {
+    /* --------------------------------------------------------
+     * 08 Quick customer create on appointment screen
+     * -------------------------------------------------------- */
+    function initCustomerCreate() {
+        const form = document.getElementById('quickCustomerForm');
+        if (!form) return;
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btn-create-customer');
-            const msg = document.getElementById('customer-create-msg');
-            btn.disabled = true;
-            if (msg) { msg.textContent = 'Kaydediliyor...'; msg.className = 'ms-2 small text-muted'; }
+            const btn = form.querySelector('[type="submit"]');
+            btn?.setAttribute('data-loading', 'true');
             try {
-                const res = await fetch(window.ADMIN_CUSTOMER_CREATE_URL, {
-                    method: 'POST',
-                    body: new FormData(form),
-                    headers: { 'Accept': 'application/json' }
-                });
-                const data = await res.json();
-                if (!data.success) {
-                    const txt = data.message || 'Müşteri eklenemedi.';
-                    if (msg) { msg.textContent = txt; msg.className = 'ms-2 small text-danger'; }
-                    toast(txt, 'danger');
+                const fd = new FormData(form);
+                const j  = await fetchJSON(form.action, { method: 'POST', body: fd });
+                if (j && j.ok) {
+                    toast('Müşteri oluşturuldu', 'success');
+                    const sel = document.getElementById('customerSelect');
+                    if (sel) {
+                        const opt = new Option(`${j.customer.first_name} ${j.customer.last_name} (${j.customer.phone || j.customer.email})`, j.customer.id, true, true);
+                        sel.add(opt);
+                        sel.dispatchEvent(new Event('change'));
+                    }
+                    form.reset();
+                    const collapse = bootstrap.Collapse.getInstance(form.closest('.collapse'));
+                    collapse?.hide();
+                } else {
+                    toast(j.message || 'Müşteri oluşturulamadı.', 'error');
+                }
+            } catch (err) {
+                toast('Bir hata oluştu.', 'error');
+            } finally {
+                btn?.removeAttribute('data-loading');
+            }
+        });
+    }
+
+
+    /* --------------------------------------------------------
+     * 09 Customer package loader (Appointment screen)
+     * -------------------------------------------------------- */
+    function initCustomerPackages() {
+        const sel  = document.getElementById('customerSelect');
+        const pkgC = document.getElementById('customerPackages');
+        if (!sel || !pkgC) return;
+        sel.addEventListener('change', async () => {
+            const id = sel.value;
+            if (!id) { pkgC.innerHTML = ''; return; }
+            pkgC.innerHTML = '<div class="skeleton" style="height:48px;border-radius:12px"></div>';
+            try {
+                const base = (window.APP_BASE || '/') + 'admin/?route=ajax/customer-packages&id=' + id;
+                const j = await fetchJSON(base);
+                if (!j.packages?.length) {
+                    pkgC.innerHTML = '<small class="text-muted">Bu müşterinin aktif paketi yok.</small>';
                     return;
                 }
-                const sel = document.getElementById('customer_id');
-                if (sel && data.customer) {
-                    const opt = document.createElement('option');
-                    opt.value = data.customer.id;
-                    opt.textContent = data.customer.label;
-                    opt.selected = true;
-                    sel.appendChild(opt);
-                    sel.dispatchEvent(new Event('change'));
-                }
-                let text = data.message || 'Müşteri eklendi.';
-                if (data.customer?.temp_password) text += ' Şifre: ' + data.customer.temp_password;
-                if (msg) { msg.textContent = text; msg.className = 'ms-2 small text-success'; }
-                toast('Müşteri başarıyla eklendi.', 'success');
-                form.reset();
-                updateSummary();
-                document.getElementById('customer_id')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } catch (err) {
-                if (msg) { msg.textContent = 'Bağlantı hatası.'; msg.className = 'ms-2 small text-danger'; }
-                toast('Bağlantı hatası.', 'danger');
-            } finally {
-                btn.disabled = false;
+                pkgC.innerHTML = '<label class="form-label">Paket kullan (opsiyonel)</label>' +
+                    '<select class="form-select" name="customer_package_id">' +
+                    '<option value="">Paket kullanma</option>' +
+                    j.packages.map(p => `<option value="${p.id}">${p.package_name} · ${p.remaining_sessions} seans kaldı</option>`).join('') +
+                    '</select>';
+            } catch {
+                pkgC.innerHTML = '';
             }
         });
     }
 
-    /* 11. Boot
-     * ------------------------------------------------------- */
-    document.addEventListener('DOMContentLoaded', () => {
-        initSidebar();
-        initConfirm();
-        initFilterReset();
-        initVarInserter();
-        loadDashboardCharts();
-        initCustomerPackages();
-        initAdminSlots();
-        initSummary();
-        initInlineCustomerCreate();
 
-        $$('.alert-dismissible').forEach(a => {
-            setTimeout(() => a.classList.add('show'), 0);
+    /* --------------------------------------------------------
+     * 10 Form submit loaders — buttons get data-loading="true"
+     * -------------------------------------------------------- */
+    function initFormSubmitLoaders() {
+        $$('form').forEach(form => {
+            form.addEventListener('submit', () => {
+                const btn = form.querySelector('button[type="submit"]');
+                if (btn) btn.setAttribute('data-loading', 'true');
+            });
         });
-    });
+    }
+
+
+    /* --------------------------------------------------------
+     * 11 Settings — test buttons (SMTP/NetGSM/WhatsApp)
+     * -------------------------------------------------------- */
+    function initSettingsTests() {
+        $$('[data-test-endpoint]').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                btn.setAttribute('data-loading', 'true');
+                const url = btn.dataset.testEndpoint;
+                try {
+                    const j = await fetchJSON(url, { method: 'POST', body: { _csrf: CSRF() } });
+                    if (j.ok) toast(j.message || 'Bağlantı başarılı', 'success');
+                    else      toast(j.message || 'Bağlantı başarısız', 'error');
+                } catch {
+                    toast('Bağlantı testi başarısız', 'error');
+                } finally {
+                    btn.removeAttribute('data-loading');
+                }
+            });
+        });
+    }
+
+
+    /* --------------------------------------------------------
+     * 12 Animated counters [data-counter]
+     * -------------------------------------------------------- */
+    function initAnimatedCounters() {
+        const items = $$('[data-counter]');
+        if (!items.length || !('IntersectionObserver' in window)) {
+            items.forEach(el => el.textContent = el.dataset.counter);
+            return;
+        }
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (!e.isIntersecting) return;
+                const target = parseFloat(e.target.dataset.counter) || 0;
+                animate(e.target, target);
+                io.unobserve(e.target);
+            });
+        }, { threshold: 0.4 });
+        items.forEach(el => io.observe(el));
+    }
+    function animate(el, target, duration = 1100) {
+        const start = performance.now();
+        const step = (now) => {
+            const p = Math.min((now - start) / duration, 1);
+            const v = target * (1 - Math.pow(1 - p, 3));
+            el.textContent = (target % 1 === 0) ? Math.round(v).toLocaleString('tr-TR') : v.toFixed(1);
+            if (p < 1) requestAnimationFrame(step);
+            else el.textContent = (target % 1 === 0) ? Math.round(target).toLocaleString('tr-TR') : target.toFixed(1);
+        };
+        requestAnimationFrame(step);
+    }
 })();

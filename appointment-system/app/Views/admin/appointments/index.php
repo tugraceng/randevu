@@ -91,7 +91,7 @@ $statuses = [
 </form>
 
 <!-- Desktop table -->
-<div class="table-card d-none d-md-block">
+<div class="table-rounded d-none d-md-block">
     <div class="table-responsive">
         <table class="table align-middle mb-0">
             <thead>
@@ -106,11 +106,19 @@ $statuses = [
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($rows as $a): $redir = e(admin_url('?route=appointments')); ?>
+                <?php foreach ($rows as $a):
+                    $redir = e(admin_url('?route=appointments'));
+                    $initial = strtoupper(mb_substr($a['customer_name'] ?? '?', 0, 1));
+                ?>
                 <tr>
                     <td>
-                        <strong><?= e($a['customer_name']) ?></strong><br>
-                        <small class="text-muted"><i class="bi bi-telephone me-1"></i><?= e($a['customer_phone'] ?? '-') ?></small>
+                        <div class="table-avatar">
+                            <span class="avatar"><?= e($initial) ?></span>
+                            <div>
+                                <strong><?= e($a['customer_name']) ?></strong>
+                                <small><i class="bi bi-telephone me-1"></i><?= e($a['customer_phone'] ?? '-') ?></small>
+                            </div>
+                        </div>
                     </td>
                     <td>
                         <?= e($a['service_name']) ?>
@@ -132,9 +140,9 @@ $statuses = [
                             <span class="chip chip-muted">Tekil</span>
                         <?php endif; ?>
                     </td>
-                    <td class="text-end appointment-row-actions">
-                        <a href="<?= admin_url('?route=appointments/show&id=' . (int)$a['id']) ?>" class="btn btn-soft btn-sm btn-icon" title="Detay"><i class="bi bi-eye"></i></a>
-                        <a href="<?= admin_url('?route=appointments/edit&id=' . (int)$a['id']) ?>" class="btn btn-outline-secondary btn-sm btn-icon" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                    <td class="text-end">
+                        <a href="<?= admin_url('?route=appointments/show&id=' . (int)$a['id']) ?>" class="btn btn-icon" title="Detay"><i class="bi bi-eye"></i></a>
+                        <a href="<?= admin_url('?route=appointments/edit&id=' . (int)$a['id']) ?>" class="btn btn-icon" title="Düzenle"><i class="bi bi-pencil"></i></a>
                         <?php
                         $quickStatuses = [
                             'approved'  => ['btn' => 'success',   'icon' => 'bi-check2', 'label' => 'Onayla'],
@@ -182,23 +190,30 @@ $statuses = [
 
 <!-- Mobile card view -->
 <div class="d-md-none">
-    <?php foreach ($rows as $a): ?>
-    <div class="appointment-card mb-2">
-        <div class="head">
-            <strong><?= e($a['customer_name']) ?></strong>
-            <?= status_badge($a['status']) ?>
+    <?php foreach ($rows as $a):
+        $initial = strtoupper(mb_substr($a['customer_name'] ?? '?', 0, 1));
+    ?>
+    <div class="list-card">
+        <div class="table-avatar" style="margin-right:.25rem;">
+            <span class="avatar"><?= e($initial) ?></span>
         </div>
-        <div class="meta"><i class="bi bi-clock me-1"></i><?= format_date($a['appointment_date']) ?> · <?= format_time($a['start_time']) ?></div>
-        <div class="meta"><i class="bi bi-stars me-1"></i><?= e($a['service_name']) ?> · <?= e($a['staff_name'] ?? 'Personel atanmamış') ?></div>
         <div class="meta">
-            <?= status_badge($a['payment_status']) ?>
-            <?php if (!empty($a['customer_package_id'])): ?>
-                <span class="chip ms-1"><i class="bi bi-box-seam"></i><?= e($a['package_name']) ?> (<?= (int)$a['remaining_sessions'] ?>)</span>
-            <?php endif; ?>
-        </div>
-        <div class="actions">
-            <a href="<?= admin_url('?route=appointments/show&id=' . (int)$a['id']) ?>" class="btn btn-soft btn-sm flex-grow-1"><i class="bi bi-eye me-1"></i> Detay</a>
-            <a href="<?= admin_url('?route=appointments/edit&id=' . (int)$a['id']) ?>" class="btn btn-outline-secondary btn-sm flex-grow-1"><i class="bi bi-pencil me-1"></i> Düzenle</a>
+            <div class="d-flex justify-content-between align-items-start">
+                <strong><?= e($a['customer_name']) ?></strong>
+                <?= status_badge($a['status']) ?>
+            </div>
+            <small class="d-block text-muted"><i class="bi bi-clock me-1"></i><?= format_date($a['appointment_date']) ?> · <?= format_time($a['start_time']) ?></small>
+            <small class="d-block text-muted"><i class="bi bi-stars me-1"></i><?= e($a['service_name']) ?></small>
+            <div class="d-flex gap-2 mt-2 align-items-center">
+                <?= status_badge($a['payment_status']) ?>
+                <?php if (!empty($a['customer_package_id'])): ?>
+                    <span class="chip chip-primary"><i class="bi bi-box-seam"></i><?= (int)$a['remaining_sessions'] ?></span>
+                <?php endif; ?>
+            </div>
+            <div class="actions mt-2">
+                <a href="<?= admin_url('?route=appointments/show&id=' . (int)$a['id']) ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></a>
+                <a href="<?= admin_url('?route=appointments/edit&id=' . (int)$a['id']) ?>" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i></a>
+            </div>
         </div>
     </div>
     <?php endforeach; ?>
@@ -206,6 +221,7 @@ $statuses = [
         <div class="empty-state">
             <div class="icon"><i class="bi bi-calendar-x"></i></div>
             <h6>Randevu bulunamadı</h6>
+            <p>Filtrelerinizi değiştirin veya yeni randevu oluşturun.</p>
         </div>
     <?php endif; ?>
 </div>

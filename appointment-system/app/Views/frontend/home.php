@@ -67,6 +67,10 @@ $trust = [
                     <span><i class="bi bi-check-circle text-success me-1"></i> Ücretsiz online randevu</span>
                     <span><i class="bi bi-check-circle text-success me-1"></i> İptal/değişim kolay</span>
                 </div>
+                <div class="hero-live-strip">
+                    <span class="dot"></span>
+                    Bugün <strong>&nbsp;<span data-live-count="<?= (int)($settings['stat_today_bookings'] ?? 23) ?>">23</span>&nbsp;</strong> kişi randevu aldı
+                </div>
             </div>
             <div class="col-lg-6">
                 <div class="hero-preview">
@@ -152,10 +156,10 @@ $trust = [
             </div>
             <div class="col-lg-6">
                 <div class="row g-3">
-                    <div class="col-6"><div class="surface-soft p-4 text-center"><strong class="d-block fs-3 text-gradient"><?= e($settings['stat_happy_clients'] ?? '15K+') ?></strong><span class="text-muted small">Mutlu Müşteri</span></div></div>
+                    <div class="col-6"><div class="surface-soft p-4 text-center"><strong class="d-block fs-3 text-gradient" data-counter="<?= (int)preg_replace('/\D/', '', $settings['stat_happy_clients'] ?? '15000') ?>">0</strong><span class="text-muted small">Mutlu Müşteri</span></div></div>
                     <div class="col-6"><div class="surface-soft p-4 text-center"><strong class="d-block fs-3 text-gradient"><?= e($settings['stat_support'] ?? '7/24') ?></strong><span class="text-muted small">Destek</span></div></div>
-                    <div class="col-6"><div class="surface-soft p-4 text-center"><strong class="d-block fs-3 text-gradient"><?= e($settings['stat_experts'] ?? '45+') ?></strong><span class="text-muted small">Uzman</span></div></div>
-                    <div class="col-6"><div class="surface-soft p-4 text-center"><strong class="d-block fs-3 text-gradient"><?= e($settings['stat_awards'] ?? '12') ?></strong><span class="text-muted small">Ödül</span></div></div>
+                    <div class="col-6"><div class="surface-soft p-4 text-center"><strong class="d-block fs-3 text-gradient" data-counter="<?= (int)preg_replace('/\D/', '', $settings['stat_experts'] ?? '45') ?>">0</strong><span class="text-muted small">Uzman</span></div></div>
+                    <div class="col-6"><div class="surface-soft p-4 text-center"><strong class="d-block fs-3 text-gradient" data-counter="<?= (int)preg_replace('/\D/', '', $settings['stat_awards'] ?? '12') ?>">0</strong><span class="text-muted small">Ödül</span></div></div>
                 </div>
             </div>
         </div>

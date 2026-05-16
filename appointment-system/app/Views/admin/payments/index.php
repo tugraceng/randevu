@@ -40,7 +40,7 @@
     </div>
 </form>
 
-<div class="panel">
+<div class="table-rounded">
     <div class="table-responsive">
         <table class="table align-middle mb-0">
             <thead>
@@ -49,16 +49,23 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($payments as $p): ?>
-                <tr>
+                <?php foreach ($payments as $p):
+                    $initial = strtoupper(mb_substr($p['customer_name'] ?? '?', 0, 1));
+                ?>
+                <tr class="payment-row">
                     <td><strong>#<?= (int)$p['id'] ?></strong></td>
                     <td>
-                        <strong><?= e($p['customer_name'] ?? '—') ?></strong>
-                        <?php if (!empty($p['related_label'])): ?>
-                        <small class="text-muted d-block"><?= e($p['related_label']) ?></small>
-                        <?php endif; ?>
+                        <div class="table-avatar">
+                            <span class="avatar"><?= e($initial) ?></span>
+                            <div>
+                                <strong><?= e($p['customer_name'] ?? '—') ?></strong>
+                                <?php if (!empty($p['related_label'])): ?>
+                                <small><?= e($p['related_label']) ?></small>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </td>
-                    <td><strong class="text-success"><?= format_money((float)$p['amount']) ?></strong></td>
+                    <td><span class="amount text-primary"><?= format_money((float)$p['amount']) ?></span></td>
                     <td><span class="chip chip-muted"><?= e($p['provider'] ?? 'manual') ?></span></td>
                     <td><?= status_badge($p['status']) ?></td>
                     <td class="text-muted small"><?= format_date($p['created_at']) ?></td>
@@ -82,7 +89,7 @@
                                 <button class="btn btn-outline-info" data-confirm="Bu ödeme iade olarak işaretlensin mi?" title="İade"><i class="bi bi-arrow-counterclockwise"></i></button>
                             </form>
                             <?php endif; ?>
-                            <a href="<?= admin_url('?route=payments/show&id=' . (int)$p['id']) ?>" class="btn btn-soft"><i class="bi bi-eye"></i></a>
+                            <a href="<?= admin_url('?route=payments/show&id=' . (int)$p['id']) ?>" class="btn btn-icon" title="Detay"><i class="bi bi-eye"></i></a>
                         </div>
                     </td>
                 </tr>

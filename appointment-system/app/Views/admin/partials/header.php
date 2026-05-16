@@ -105,13 +105,49 @@ $sectionLabels = [
                 </div>
             </div>
             <div class="topbar-right">
+                <form class="topbar-search d-none d-lg-block" method="get" action="<?= admin_url() ?>">
+                    <i class="bi bi-search"></i>
+                    <input type="search" name="q" placeholder="Müşteri, randevu, ödeme ara..." value="<?= e($_GET['q'] ?? '') ?>">
+                </form>
+                <a href="<?= admin_url('?route=appointments/create') ?>" class="topbar-icon-btn d-none d-md-inline-flex" title="Hızlı randevu">
+                    <i class="bi bi-plus-lg"></i>
+                </a>
                 <a href="<?= admin_url('?route=appointments/calendar') ?>" class="topbar-icon-btn d-none d-md-inline-flex" title="Takvim">
                     <i class="bi bi-calendar3"></i>
                 </a>
-                <a href="<?= admin_url('?route=messages') ?>" class="topbar-icon-btn d-none d-md-inline-flex" title="Bildirimler">
-                    <i class="bi bi-bell"></i>
-                    <span class="dot"></span>
-                </a>
+                <div class="dropdown d-none d-md-inline-block">
+                    <button class="topbar-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Bildirimler">
+                        <i class="bi bi-bell"></i>
+                        <span class="dot"></span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end notif-dropdown">
+                        <div class="head">
+                            <strong>Bildirimler</strong>
+                            <a href="<?= admin_url('?route=messages') ?>" class="small">Tümü</a>
+                        </div>
+                        <a class="item" href="<?= admin_url('?route=appointments&status=pending') ?>">
+                            <span class="ic"><i class="bi bi-calendar-event"></i></span>
+                            <div>
+                                <strong style="display:block;color:var(--ink-900);font-size:.9rem;">Onay bekleyen randevular</strong>
+                                <small class="text-muted">Bekleyen tüm randevuları görüntüleyin</small>
+                            </div>
+                        </a>
+                        <a class="item" href="<?= admin_url('?route=payments&status=pending') ?>">
+                            <span class="ic" style="background:rgba(245,158,11,.12);color:var(--warning);"><i class="bi bi-cash"></i></span>
+                            <div>
+                                <strong style="display:block;color:var(--ink-900);font-size:.9rem;">Bekleyen ödemeler</strong>
+                                <small class="text-muted">Ödeme onayı bekleyen kayıtlar</small>
+                            </div>
+                        </a>
+                        <a class="item" href="<?= admin_url('?route=customers') ?>">
+                            <span class="ic" style="background:rgba(16,185,129,.12);color:var(--success);"><i class="bi bi-person-plus"></i></span>
+                            <div>
+                                <strong style="display:block;color:var(--ink-900);font-size:.9rem;">Müşteri yönetimi</strong>
+                                <small class="text-muted">Yeni kayıtları görüntüleyin</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
                 <div class="dropdown">
                     <button class="topbar-user dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="avatar"><?= e($adminInitial) ?></span>
