@@ -14,12 +14,17 @@ class CustomerAuthController
         if (is_customer_logged_in()) {
             redirect(customer_url());
         }
-        view('customer/auth/login', ['title' => 'Giriş Yap']);
+        // One-page experience: bookmarks / legacy links bounce
+        // back to the homepage and auto-open the auth drawer.
+        redirect(base_url('?auth=login'));
     }
 
     public function registerForm(): void
     {
-        view('customer/auth/register', ['title' => 'Kayıt Ol']);
+        if (is_customer_logged_in()) {
+            redirect(customer_url());
+        }
+        redirect(base_url('?auth=register'));
     }
 
     public function login(): void

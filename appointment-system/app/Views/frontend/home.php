@@ -522,6 +522,7 @@ $trust = [
 
 <?php require APP_PATH . '/Views/frontend/partials/footer.php'; ?>
 <?php require APP_PATH . '/Views/frontend/partials/appointment-modal.php'; ?>
+<?php require APP_PATH . '/Views/frontend/partials/auth-drawer.php'; ?>
 
 <?php if ($showWa): ?>
 <a href="https://wa.me/<?= e($wa) ?>" class="floating-wa" target="_blank" rel="noopener" aria-label="WhatsApp ile yazın">
@@ -541,6 +542,7 @@ $trust = [
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= base_url('assets/js/frontend.js') ?>"></script>
+<script src="<?= base_url('assets/js/auth.js') ?>"></script>
 <script src="<?= base_url('assets/js/appointment.js') ?>"></script>
 </body>
 </html>

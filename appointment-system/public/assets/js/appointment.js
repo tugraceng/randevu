@@ -208,4 +208,66 @@
 
     // Init
     goStep(1);
+
+    /* --------------------------------------------------------
+     * 07 Booking gate — open the modal only if user is logged-in
+     *     AND email-verified. Otherwise route through Auth drawer
+     *     with a pending action that resumes the booking flow.
+     * -------------------------------------------------------- */
+    const modalEl = document.getElementById('appointmentModal');
+    let bsModal = null;
+    function openBookingModal() {
+        if (!modalEl) return;
+        if (!bsModal && window.bootstrap?.Modal) {
+            bsModal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+        }
+        bsModal?.show();
+    }
+
+    function startBookingFlow() {
+        if (window.Auth) {
+            window.Auth.require(openBookingModal, {
+                requireVerified: true,
+                label: 'Randevu oluşturmak için giriş yapın ve e-postanızı doğrulayın.'
+            });
+        } else {
+            openBookingModal();
+        }
+    }
+
+    // Bind all "Randevu Al" / book triggers on the page (including legacy
+    // [data-bs-target="#appointmentModal"] buttons sprinkled across home.php).
+    const bookTriggers = document.querySelectorAll(
+        '[data-book-start], #mobile-cta-book, [data-bs-target="#appointmentModal"]'
+    );
+    bookTriggers.forEach(btn => {
+        // remove Bootstrap auto-trigger to prevent double-open without auth gate
+        btn.removeAttribute('data-bs-toggle');
+        btn.removeAttribute('data-bs-target');
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Optionally pre-select service if data-service is present
+            const preService = btn.dataset.service;
+            const fireOpen = () => {
+                openBookingModal();
+                if (preService) {
+                    setTimeout(() => {
+                        const tile = ROOT.querySelector(`[data-choose-service][data-id="${preService}"]`);
+                        tile?.click();
+                    }, 200);
+                }
+            };
+            if (window.Auth) {
+                window.Auth.require(fireOpen, {
+                    requireVerified: true,
+                    label: 'Randevu oluşturmak için giriş yapın ve e-postanızı doğrulayın.'
+                });
+            } else {
+                fireOpen();
+            }
+        });
+    });
+
+    // Expose for any custom integration
+    window.startBookingFlow = startBookingFlow;
 })();

@@ -21,15 +21,15 @@ $customer_packages = $customer_packages ?? [];
                         <div class="brand-icon-inline mx-auto mb-3" style="width:56px;height:56px;font-size:1.4rem;"><i class="bi bi-person-circle"></i></div>
                         <h5>Randevu için giriş yapın</h5>
                         <p class="text-muted">Randevularınızı, paketlerinizi ve ödemelerinizi takip edebilmek için üyeliğiniz gerekiyor.</p>
-                        <a href="<?= customer_url('?route=login') ?>" class="btn btn-cta me-2">Giriş Yap</a>
-                        <a href="<?= customer_url('?route=register') ?>" class="btn btn-outline-primary">Üye Ol</a>
+                        <button type="button" class="btn btn-cta me-2" data-auth-open="login" data-bs-dismiss="modal">Giriş Yap</button>
+                        <button type="button" class="btn btn-outline-primary" data-auth-open="register" data-bs-dismiss="modal">Üye Ol</button>
                     </div>
                 <?php elseif (!$verified): ?>
                     <div class="p-4 text-center">
                         <div class="brand-icon-inline mx-auto mb-3" style="width:56px;height:56px;font-size:1.4rem;background:var(--warning);"><i class="bi bi-shield-exclamation"></i></div>
                         <h5>E-posta doğrulaması gerekli</h5>
                         <p class="text-muted">Randevu oluşturabilmek için lütfen e-posta adresinizi doğrulayın.</p>
-                        <a href="<?= customer_url('?route=verify-email') ?>" class="btn btn-warning">Doğrula</a>
+                        <button type="button" class="btn btn-warning" data-auth-open="verify" data-bs-dismiss="modal">Doğrulamayı Aç</button>
                     </div>
                 <?php else: ?>
 

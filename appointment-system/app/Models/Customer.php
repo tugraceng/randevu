@@ -91,6 +91,22 @@ class Customer extends BaseModel
         $stmt->execute([$id]);
     }
 
+    public function regenerateVerificationToken(int $id): string
+    {
+        $token = bin2hex(random_bytes(32));
+        $stmt = $this->db->prepare(
+            'UPDATE customers SET verification_token = ?, email_verified_at = NULL WHERE id = ?'
+        );
+        $stmt->execute([$token, $id]);
+        return $token;
+    }
+
+    public function updatePasswordById(int $id, string $hash): void
+    {
+        $stmt = $this->db->prepare('UPDATE customers SET password = ? WHERE id = ?');
+        $stmt->execute([$hash, $id]);
+    }
+
     public function updateProfile(int $id, array $data): void
     {
         $stmt = $this->db->prepare(

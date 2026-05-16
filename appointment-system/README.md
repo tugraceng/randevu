@@ -254,6 +254,73 @@ v1'de bırakılan eski class isimleri silinmedi → **CSS'te otomatik alias'land
 
 ---
 
+## One-Page Auth (Drawer) — Giriş / Kayıt / Şifre / Doğrulama
+
+Müşteri kimlik doğrulaması artık ayrı sayfa açmadan **sağdan açılan modern drawer** ile çalışır. Tek bir partial + AJAX iskeleti tüm akışı yönetir; mobilde fullscreen sheet olur.
+
+### Bileşenler
+
+| Dosya | İşi |
+|-------|-----|
+| `app/Views/frontend/partials/auth-drawer.php` | Drawer iskeleti — sol tarafta güven mesajları (`trust pane`), sağda Giriş / Kayıt / Şifremi Unuttum / E-posta Doğrulama / Hesap panelleri |
+| `public/assets/css/frontend.css` → `25a AUTH DRAWER` | Tüm drawer stilleri (sağdan kayan panel, blur backdrop, gradient sol pane, mobil fullscreen) |
+| `public/assets/js/auth.js` | Aç/kapat, sekme/pane geçişleri, AJAX form submit, **pending action queue**, toast, password toggle, ESC kapat, `?auth=` URL trigger |
+| `app/Controllers/AuthController.php` | AJAX endpoint'leri (`login`, `register`, `forgotPassword`, `resendVerification`, `authStatus`, `logout`, `resetPassword`) |
+| `app/Models/PasswordReset.php` | `customer_password_resets` tablosu için CRUD + rate limiting |
+| `app/Views/frontend/auth/reset-password.php` | Token bağlantısıyla açılan standalone reset sayfası |
+| `database/update_auth_drawer.sql` | `customer_password_resets` tablosu + `password_reset` mail şablonu |
+
+### Akış
+
+1. Navbar'daki "Giriş" / "Üye Ol" → `data-auth-open="login|register"` → drawer açılır.
+2. Sayfadaki herhangi bir **Randevu Al** butonu (`[data-book-start]` veya legacy `[data-bs-target="#appointmentModal"]`) `Auth.require(openBookingModal, { requireVerified: true })` çağrısı yapar.
+3. Kullanıcı login değilse drawer açılır + üstte **"Devam etmek için giriş yapın"** banner görünür (`auth-pending-banner`).
+4. AJAX login/register başarılı:
+   - `verified=true` → drawer kapanır, **booking modal otomatik açılır** (pending action queue resume).
+   - `verified=false` (kayıt sonrası) → drawer otomatik **Verify pane**'e geçer; tek tıkla **resend verification** butonu (`/?route=resend-verification`).
+5. "Şifremi unuttum" → `forgot` pane → e-posta enumeration koruması (her zaman generic success mesajı).
+6. Mail'deki link → `?route=reset-password&token=...` → standalone `reset-password.php` sayfası (token expired/invalid kontrolü dahil).
+7. ESC tuşu, backdrop'a tık veya `[data-auth-close]` → smooth kapanış (350ms).
+8. `customer/?route=login` ve `customer/?route=register` gibi eski yer imleri otomatik `?auth=login|register` ile drawer'a yönlendirilir.
+
+### Public API (JS)
+
+```js
+// Anywhere in your code, before performing an action that needs auth:
+window.Auth.require(() => doProtectedThing(), {
+    requireVerified: true,   // also requires email verification
+    label: 'Devam etmek için giriş yapın.'
+});
+
+window.Auth.open('login');    // open drawer at specific pane
+window.Auth.close();          // close drawer
+```
+
+### Tasarım dili
+
+- One-page ile aynı renk paleti (`--primary`, `--secondary`, `--primary-soft`)
+- `border-radius: 28px 0 0 28px` rounded edge, `28px` blur backdrop
+- Gradient sol pane (trust messages) + glassmorphism trust list cards
+- Smooth `cubic-bezier(.22, .61, .36, 1)` slide-in (420ms)
+- Mobile (`<768px`): trust pane gizlenir, drawer fullscreen olur, inputs `1rem` font + `1rem` padding (büyük dokunmatik hedef), CTA `1.05rem` padding ile sticky
+- Toast bildirimleri: `Admin.toast()` varsa onu, yoksa inline fallback toast'u kullanır
+
+### Güvenlik
+
+- CSRF token tüm AJAX formlarda zorunlu
+- `rate_limit_check()` her endpoint için (login, register, forgot, resend)
+- Şifre sıfırlama linkleri 60 dk geçerli, tek kullanımlık (`used_at`)
+- `forgot-password`: e-posta enumeration'a karşı her durumda aynı generic cevap
+- Aynı kullanıcı için 10 dk içinde max 3 reset isteği (rate-limit ek katman)
+
+### DB migration
+
+```bash
+mysql -u root appointment_system < database/update_auth_drawer.sql
+```
+
+---
+
 ## UI/UX Büyük Güncelleme
 
 Frontend, admin paneli ve müşteri paneli baştan sona "satılabilir, modern ve premium" anlayışla yeniden tasarlandı. Bootstrap 5 temel alındı, fakat klasik Bootstrap görünümünden uzaklaşmak için tüm bileşenler özel CSS değişkenleri ile kapsamlı şekilde özelleştirildi.

@@ -24,15 +24,25 @@
                             <i class="bi bi-person-circle me-1"></i> Panelim
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= base_url('?route=logout') ?>" data-auth-logout>
+                            <i class="bi bi-box-arrow-left me-1"></i> Çıkış
+                        </a>
+                    </li>
                     <?php else: ?>
                     <li class="nav-item ms-lg-2">
-                        <a class="nav-link" href="<?= customer_url('?route=login') ?>">
+                        <button type="button" class="nav-link btn btn-link" data-auth-open="login">
                             <i class="bi bi-box-arrow-in-right me-1"></i> Giriş
-                        </a>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="btn btn-soft btn-sm" data-auth-open="register">
+                            <i class="bi bi-person-plus me-1"></i> Üye Ol
+                        </button>
                     </li>
                     <?php endif; ?>
                     <li class="nav-item ms-lg-2">
-                        <button type="button" class="btn btn-cta" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                        <button type="button" class="btn btn-cta" data-book-start>
                             <i class="bi bi-calendar-plus me-1"></i> Randevu Al
                         </button>
                     </li>

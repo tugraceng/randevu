@@ -109,6 +109,17 @@ class NotificationService
         $this->sendChannel('email', 'verify_email', $customer, $vars);
     }
 
+    public function sendPasswordReset(int $customerId, string $token): void
+    {
+        $customer = (new Customer())->find($customerId);
+        if (!$customer) {
+            return;
+        }
+        $vars = $this->baseVars($customer);
+        $vars['reset_link'] = base_url('?route=reset-password&token=' . urlencode($token));
+        $this->sendChannel('email', 'password_reset', $customer, $vars);
+    }
+
     private function dispatchAppointment(int $appointmentId, string $templateKey): void
     {
         $appointment = (new Appointment())->find($appointmentId);
