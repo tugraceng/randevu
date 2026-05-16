@@ -31,27 +31,27 @@
 <div class="row g-3">
     <?php foreach ($campaigns as $c): ?>
     <div class="col-md-6 col-xl-4">
-        <div class="panel h-100">
+        <div class="panel hover-lift h-100 overflow-hidden d-flex flex-column">
             <?php if (!empty($c['image'])): ?>
-            <div style="height:140px;background:linear-gradient(135deg, var(--primary), var(--secondary));border-radius:var(--radius) var(--radius) 0 0;overflow:hidden;">
-                <img src="<?= base_url(e($c['image'])) ?>" alt="" style="width:100%;height:100%;object-fit:cover;">
+            <div class="campaign-cover">
+                <img src="<?= base_url(e($c['image'])) ?>" alt="">
             </div>
             <?php else: ?>
-            <div style="height:80px;background:linear-gradient(135deg, var(--primary), var(--secondary));border-radius:var(--radius) var(--radius) 0 0;"></div>
+            <div class="campaign-cover campaign-cover-empty"></div>
             <?php endif; ?>
-            <div class="panel-body">
-                <div class="d-flex justify-content-between mb-2">
+            <div class="panel-body d-flex flex-column flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
                     <h6 class="mb-0"><?= e($c['title']) ?></h6>
-                    <span class="badge <?= !empty($c['status']) ? 'bg-success' : 'bg-secondary' ?>"><?= !empty($c['status']) ? 'Aktif' : 'Pasif' ?></span>
+                    <span class="status-pill <?= !empty($c['status']) ? 'status-approved' : 'status-cancelled' ?>"><?= !empty($c['status']) ? 'Aktif' : 'Pasif' ?></span>
                 </div>
                 <?php if (!empty($c['start_date']) || !empty($c['end_date'])): ?>
-                <small class="text-muted d-block mb-2"><i class="bi bi-calendar me-1"></i><?= e($c['start_date'] ?? '—') ?> &mdash; <?= e($c['end_date'] ?? '—') ?></small>
+                <small class="text-muted d-block mb-2"><i class="bi bi-calendar3 me-1"></i><?= e($c['start_date'] ?? '—') ?> &mdash; <?= e($c['end_date'] ?? '—') ?></small>
                 <?php endif; ?>
                 <p class="text-muted small mb-3"><?= e($c['description'] ?? '') ?></p>
-                <form method="post" action="<?= admin_url('?route=campaigns/delete') ?>">
+                <form method="post" action="<?= admin_url('?route=campaigns/delete') ?>" class="mt-auto">
                     <?= csrf_field() ?>
                     <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
-                    <button class="btn btn-outline-danger btn-sm" data-confirm="Bu kampanya silinsin mi?"><i class="bi bi-trash"></i> Sil</button>
+                    <button class="btn btn-outline-danger btn-sm" data-confirm="Bu kampanya silinsin mi?"><i class="bi bi-trash me-1"></i> Sil</button>
                 </form>
             </div>
         </div>
@@ -59,9 +59,23 @@
     <?php endforeach; ?>
     <?php if (empty($campaigns)): ?>
     <div class="col-12">
-        <div class="empty-state"><div class="icon"><i class="bi bi-megaphone"></i></div><h6>Henüz kampanya yok</h6><p>Yeni kampanya panelinden ilk duyurunuzu oluşturun.</p></div>
+        <div class="empty-state">
+            <div class="icon"><i class="bi bi-megaphone"></i></div>
+            <h6>Henüz kampanya yok</h6>
+            <p>Müşterilerinize özel duyurular ve indirimler oluşturmak için ilk kampanyanızı ekleyin.</p>
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#newCampaignPane">
+                <i class="bi bi-plus-lg me-1"></i> Yeni Kampanya
+            </button>
+        </div>
     </div>
     <?php endif; ?>
 </div>
+
+<style>
+.campaign-cover { height: 140px; background: var(--grad-primary); border-radius: var(--radius-lg) var(--radius-lg) 0 0; overflow: hidden; position: relative; }
+.campaign-cover img { width: 100%; height: 100%; object-fit: cover; }
+.campaign-cover-empty { height: 80px; }
+.campaign-cover-empty::after { content: '\F4DA'; font-family: 'bootstrap-icons'; color: rgba(255,255,255,.5); font-size: 2.5rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+</style>
 
 <?php require APP_PATH . '/Views/admin/partials/footer.php'; ?>

@@ -15,7 +15,7 @@ $formHours = $edit_hours ?? [];
 <div class="row g-3 mb-4">
     <?php foreach ($staff as $m): ?>
     <div class="col-md-6 col-xl-4">
-        <div class="panel h-100">
+        <div class="panel hover-lift h-100">
             <div class="panel-body d-flex gap-3">
                 <?php if (!empty($m['photo'])): ?>
                 <img src="<?= base_url(e($m['photo'])) ?>" alt="" class="rounded" style="width:84px;height:84px;object-fit:cover;flex-shrink:0;">
@@ -30,7 +30,7 @@ $formHours = $edit_hours ?? [];
                             <h6 class="mb-0"><?= e($m['name']) ?></h6>
                             <small class="text-muted"><?= e($m['title'] ?? '') ?></small>
                         </div>
-                        <span class="badge <?= !empty($m['status']) ? 'bg-success' : 'bg-secondary' ?>">
+                        <span class="status-pill <?= !empty($m['status']) ? 'status-approved' : 'status-cancelled' ?>">
                             <?= !empty($m['status']) ? 'Aktif' : 'Pasif' ?>
                         </span>
                     </div>
@@ -54,7 +54,11 @@ $formHours = $edit_hours ?? [];
     <?php endforeach; ?>
     <?php if (empty($staff)): ?>
     <div class="col-12">
-        <div class="empty-state"><div class="icon"><i class="bi bi-people"></i></div><h6>Henüz personel yok</h6></div>
+        <div class="empty-state">
+            <div class="icon"><i class="bi bi-people"></i></div>
+            <h6>Henüz personel eklenmemiş</h6>
+            <p>Aşağıdaki formu kullanarak ekibinizdeki ilk personeli ekleyin. Personel için fotoğraf, uzmanlık ve haftalık çalışma saatlerini tanımlayabilirsiniz.</p>
+        </div>
     </div>
     <?php endif; ?>
 </div>

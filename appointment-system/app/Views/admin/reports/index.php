@@ -18,50 +18,64 @@ $totalApp = array_sum($statusCounts);
     </a>
 </div>
 
-<form class="filter-bar row g-3 align-items-end" method="get">
+<form class="filter-bar mb-4" method="get">
     <input type="hidden" name="route" value="reports">
-    <div class="col-md-3">
-        <label>Başlangıç</label>
-        <input type="date" class="form-control form-control-sm" name="from" value="<?= e($from) ?>">
-    </div>
-    <div class="col-md-3">
-        <label>Bitiş</label>
-        <input type="date" class="form-control form-control-sm" name="to" value="<?= e($to) ?>">
-    </div>
-    <div class="col-md-3 filter-actions">
-        <button class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i> Filtrele</button>
-        <a href="<?= admin_url('?route=reports') ?>" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-counterclockwise"></i></a>
+    <div class="row g-3 align-items-end w-100">
+        <div class="col-md-4">
+            <label>Başlangıç Tarihi</label>
+            <input type="date" class="form-control" name="from" value="<?= e($from) ?>">
+        </div>
+        <div class="col-md-4">
+            <label>Bitiş Tarihi</label>
+            <input type="date" class="form-control" name="to" value="<?= e($to) ?>">
+        </div>
+        <div class="col-md-4 d-flex gap-2 align-items-end">
+            <button class="btn btn-primary flex-grow-1"><i class="bi bi-funnel me-1"></i> Filtrele</button>
+            <a href="<?= admin_url('?route=reports') ?>" class="btn btn-outline-secondary" title="Sıfırla"><i class="bi bi-arrow-counterclockwise"></i></a>
+        </div>
     </div>
 </form>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="stat-card tone-success">
-            <span class="stat-icon"><i class="bi bi-cash-stack"></i></span>
-            <div class="stat-label">Dönem Geliri</div>
-            <div class="stat-value"><?= format_money($totalRevenue) ?></div>
+<div class="kpi-grid mb-4">
+    <div class="kpi-card k-success">
+        <div class="kpi-head">
+            <div>
+                <div class="label">Dönem Geliri</div>
+                <div class="value"><?= format_money($totalRevenue) ?></div>
+            </div>
+            <div class="icon"><i class="bi bi-cash-stack"></i></div>
         </div>
+        <div class="trend trend-up"><i class="bi bi-graph-up-arrow"></i> <?= count($revenue ?? []) ?> aylık veri</div>
     </div>
-    <div class="col-md-3">
-        <div class="stat-card">
-            <span class="stat-icon"><i class="bi bi-calendar-check"></i></span>
-            <div class="stat-label">Randevu</div>
-            <div class="stat-value"><?= number_format($totalApp) ?></div>
+    <div class="kpi-card">
+        <div class="kpi-head">
+            <div>
+                <div class="label">Toplam Randevu</div>
+                <div class="value" data-counter="<?= (int)$totalApp ?>">0</div>
+            </div>
+            <div class="icon"><i class="bi bi-calendar-check"></i></div>
         </div>
+        <div class="trend"><i class="bi bi-info-circle"></i> <?= e($from) ?> → <?= e($to) ?></div>
     </div>
-    <div class="col-md-3">
-        <div class="stat-card tone-info">
-            <span class="stat-icon"><i class="bi bi-check2-all"></i></span>
-            <div class="stat-label">Tamamlanan</div>
-            <div class="stat-value"><?= number_format($statusCounts['completed'] ?? 0) ?></div>
+    <div class="kpi-card k-info">
+        <div class="kpi-head">
+            <div>
+                <div class="label">Tamamlanan</div>
+                <div class="value" data-counter="<?= (int)($statusCounts['completed'] ?? 0) ?>">0</div>
+            </div>
+            <div class="icon"><i class="bi bi-check2-all"></i></div>
         </div>
+        <div class="trend trend-up"><i class="bi bi-arrow-up-right"></i> Servis tamamlama</div>
     </div>
-    <div class="col-md-3">
-        <div class="stat-card tone-danger">
-            <span class="stat-icon"><i class="bi bi-x-circle"></i></span>
-            <div class="stat-label">İptal</div>
-            <div class="stat-value"><?= number_format($statusCounts['cancelled'] ?? 0) ?></div>
+    <div class="kpi-card k-danger">
+        <div class="kpi-head">
+            <div>
+                <div class="label">İptal Edilen</div>
+                <div class="value" data-counter="<?= (int)($statusCounts['cancelled'] ?? 0) ?>">0</div>
+            </div>
+            <div class="icon"><i class="bi bi-x-circle"></i></div>
         </div>
+        <div class="trend trend-down"><i class="bi bi-arrow-down-right"></i> Müdahale gerekebilir</div>
     </div>
 </div>
 

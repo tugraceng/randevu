@@ -21,23 +21,25 @@
             <tbody>
                 <?php foreach ($payments as $p): ?>
                 <tr>
-                    <td><?= format_date($p['paid_at'] ?? $p['created_at']) ?></td>
+                    <td><strong><?= format_date($p['paid_at'] ?? $p['created_at']) ?></strong></td>
                     <td>
                         <strong><?= e($p['package_name'] ?? $p['service_name'] ?? $p['payment_type']) ?></strong>
                         <?php if (!empty($p['provider'])): ?>
-                        <small class="text-muted d-block"><?= e($p['provider']) ?></small>
+                        <small class="text-muted d-block"><i class="bi bi-credit-card me-1"></i><?= e($p['provider']) ?></small>
                         <?php endif; ?>
                     </td>
-                    <td><strong><?= format_money((float)$p['amount']) ?></strong></td>
-                    <td>
-                        <span class="badge bg-<?= $p['status']==='paid'?'success':($p['status']==='failed'?'danger':'warning') ?>">
-                            <?= e($p['status']) ?>
-                        </span>
-                    </td>
+                    <td><strong class="text-primary"><?= format_money((float)$p['amount']) ?></strong></td>
+                    <td><?= status_badge($p['status']) ?></td>
                 </tr>
                 <?php endforeach; ?>
                 <?php if (empty($payments)): ?>
-                <tr><td colspan="4"><div class="empty-state"><i class="bi bi-credit-card"></i><br>Henüz ödeme yok</div></td></tr>
+                <tr><td colspan="4">
+                    <div class="empty-state">
+                        <div class="icon"><i class="bi bi-credit-card"></i></div>
+                        <h6>Henüz ödeme yok</h6>
+                        <p>Bir paket satın aldığınızda veya bir randevu için ödeme yaptığınızda burada görünür.</p>
+                    </div>
+                </td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

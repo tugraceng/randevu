@@ -29,12 +29,19 @@
                         <?= format_date($a['appointment_date']) ?><br>
                         <small class="text-muted"><i class="bi bi-clock me-1"></i><?= format_time($a['start_time']) ?></small>
                     </td>
-                    <td><span class="badge bg-<?= $a['status']==='completed'?'success':($a['status']==='cancelled'?'secondary':($a['status']==='pending'?'warning':'primary')) ?>"><?= e($a['status']) ?></span></td>
-                    <td><span class="badge bg-<?= ($a['payment_status']??'')==='paid'?'success':'warning' ?>"><?= e($a['payment_status'] ?? '-') ?></span></td>
+                    <td><?= status_badge($a['status']) ?></td>
+                    <td><?= status_badge($a['payment_status'] ?? 'not_required') ?></td>
                 </tr>
                 <?php endforeach; ?>
                 <?php if (empty($appointments)): ?>
-                <tr><td colspan="5"><div class="empty-state"><i class="bi bi-calendar-x"></i><br>Henüz randevunuz yok</div></td></tr>
+                <tr><td colspan="5">
+                    <div class="empty-state">
+                        <div class="icon"><i class="bi bi-calendar-x"></i></div>
+                        <h6>Henüz randevunuz yok</h6>
+                        <p>İlk randevunuzu oluşturmak için tek dokunuş yeterli.</p>
+                        <a href="<?= customer_url('?route=appointments/create') ?>" class="btn btn-primary btn-sm"><i class="bi bi-calendar-plus me-1"></i> Randevu Oluştur</a>
+                    </div>
+                </td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

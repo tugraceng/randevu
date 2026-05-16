@@ -23,7 +23,7 @@
             <div class="row g-3">
                 <?php foreach ($sections as $sec): ?>
                 <div class="col-12 col-xl-6">
-                    <div class="panel h-100">
+                    <div class="panel hover-lift h-100">
                         <div class="panel-header">
                             <h6><i class="bi bi-bookmark me-1"></i> <?= e($sec['section_key']) ?></h6>
                             <span class="chip chip-muted">#<?= (int)$sec['sort_order'] ?></span>
@@ -100,8 +100,8 @@
                 <div class="row g-3">
                     <?php foreach ($gallery ?? [] as $g): ?>
                     <div class="col-md-4 col-lg-3">
-                        <div class="panel h-100">
-                            <img src="<?= base_url(e($g['image'])) ?>" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius) var(--radius) 0 0;">
+                        <div class="panel hover-lift h-100 overflow-hidden">
+                            <img src="<?= base_url(e($g['image'])) ?>" alt="" style="width:100%;height:140px;object-fit:cover;">
                             <div class="panel-body p-2">
                                 <small class="d-block text-muted text-truncate"><?= e($g['title'] ?? '—') ?></small>
                                 <form method="post" action="<?= admin_url('?route=content/gallery/delete') ?>" class="mt-1">

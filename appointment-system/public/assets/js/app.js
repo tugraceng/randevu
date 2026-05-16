@@ -45,4 +45,34 @@ document.addEventListener('DOMContentLoaded', () => {
       if (input) input.value = card.dataset.id;
     });
   });
+
+  /* Premium UX additions for customer panel */
+  const main = document.querySelector('.customer-content');
+  if (main) main.classList.add('fade-up');
+
+  const liftTargets = document.querySelectorAll('.c-card, .c-stat, .c-card-lg, .service-select-card, .loyalty-card');
+  liftTargets.forEach(el => { if (!el.classList.contains('hover-lift')) el.classList.add('hover-lift'); });
+
+  if ('IntersectionObserver' in window) {
+    const items = document.querySelectorAll('.c-card, .c-stat, .c-card-lg');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (!e.isIntersecting) return;
+        e.target.style.transitionDelay = (Math.min(i * 30, 200)) + 'ms';
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.08 });
+    items.forEach(el => {
+      el.setAttribute('data-reveal', '');
+      io.observe(el);
+    });
+  }
+
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', () => {
+      const btn = form.querySelector('button[type="submit"]');
+      if (btn) btn.setAttribute('data-loading', 'true');
+    });
+  });
 });

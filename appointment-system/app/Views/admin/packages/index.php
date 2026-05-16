@@ -39,16 +39,31 @@
 <div class="row g-3 mb-4">
     <?php foreach ($packages as $p): ?>
     <div class="col-md-6 col-xl-4">
-        <div class="package-card">
+        <div class="package-card hover-lift d-flex flex-column h-100">
             <div class="d-flex justify-content-between align-items-start mb-2">
-                <h6 class="mb-0"><?= e($p['name']) ?></h6>
+                <div>
+                    <h6 class="mb-1"><?= e($p['name']) ?></h6>
+                    <small class="text-muted"><i class="bi bi-stars me-1"></i><?= e($p['service_name']) ?></small>
+                </div>
                 <?= status_badge(!empty($p['status']) ? 'approved' : 'cancelled') ?>
             </div>
-            <small class="text-muted d-block mb-3"><i class="bi bi-stars me-1"></i><?= e($p['service_name']) ?></small>
-            <div class="d-flex justify-content-between mb-1"><span class="text-muted small">Seans</span><strong><?= (int)$p['session_count'] ?></strong></div>
-            <div class="d-flex justify-content-between mb-1"><span class="text-muted small">Süre</span><strong><?= (int)$p['validity_days'] ?> gün</strong></div>
-            <div class="d-flex justify-content-between mb-3"><span class="text-muted small">Fiyat</span><strong class="text-primary"><?= format_money((float)$p['price']) ?></strong></div>
-            <a href="<?= admin_url('?route=customers') ?>" class="btn btn-soft btn-sm w-100"><i class="bi bi-person-plus me-1"></i> Müşteriye Tanımla</a>
+            <div class="surface-soft p-3 rounded my-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted d-block">Paket Fiyatı</small>
+                    <strong class="fs-5 text-primary"><?= format_money((float)$p['price']) ?></strong>
+                </div>
+                <div class="text-end">
+                    <small class="text-muted d-block">Seans</small>
+                    <strong class="fs-5"><?= (int)$p['session_count'] ?></strong>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="chip"><i class="bi bi-calendar3"></i><?= (int)$p['validity_days'] ?> gün geçerli</span>
+                <?php if (!empty($p['price']) && !empty($p['session_count'])): ?>
+                <span class="chip chip-muted"><i class="bi bi-calculator"></i>Seans ≈ <?= format_money((float)$p['price'] / max(1,(int)$p['session_count'])) ?></span>
+                <?php endif; ?>
+            </div>
+            <a href="<?= admin_url('?route=customers') ?>" class="btn btn-soft btn-sm w-100 mt-auto"><i class="bi bi-person-plus me-1"></i> Müşteriye Tanımla</a>
         </div>
     </div>
     <?php endforeach; ?>
@@ -58,13 +73,12 @@
             <div class="icon"><i class="bi bi-box"></i></div>
             <h6>Tanımlı paket yok</h6>
             <p>İlk paketinizi oluşturmak için yukarıdaki "Yeni Paket" panelini açın.</p>
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#newPackagePane">
+                <i class="bi bi-plus-lg me-1"></i> Yeni Paket Oluştur
+            </button>
         </div>
     </div>
     <?php endif; ?>
 </div>
-
-<style>
-    .package-card { background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:1.25rem 1.5rem; box-shadow:var(--shadow-xs); height:100%; }
-</style>
 
 <?php require APP_PATH . '/Views/admin/partials/footer.php'; ?>

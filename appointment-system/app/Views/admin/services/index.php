@@ -13,16 +13,17 @@
 <div class="row g-3 mb-4">
     <?php foreach ($services as $s): ?>
     <div class="col-md-6 col-xl-4">
-        <div class="panel h-100">
+        <div class="panel hover-lift h-100 d-flex flex-column overflow-hidden">
             <?php if (!empty($s['image'])): ?>
-            <div style="height:140px;overflow:hidden;border-radius:var(--radius) var(--radius) 0 0;">
-                <img src="<?= base_url(e($s['image'])) ?>" alt="<?= e($s['name']) ?>" style="width:100%;height:100%;object-fit:cover;">
+            <div class="service-cover">
+                <img src="<?= base_url(e($s['image'])) ?>" alt="<?= e($s['name']) ?>">
+                <span class="service-price-tag"><?= format_money((float)$s['price']) ?></span>
             </div>
             <?php endif; ?>
             <div class="panel-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <h6 class="mb-0"><?= e($s['name']) ?></h6>
-                    <span class="badge <?= !empty($s['status']) ? 'bg-success' : 'bg-secondary' ?>">
+                    <span class="status-pill <?= !empty($s['status']) ? 'status-approved' : 'status-cancelled' ?>">
                         <?= !empty($s['status']) ? 'Aktif' : 'Pasif' ?>
                     </span>
                 </div>
@@ -114,5 +115,23 @@
         </form>
     </div>
 </div>
+
+<style>
+.service-cover { height: 140px; position: relative; overflow: hidden; background: var(--grad-primary); }
+.service-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-med); }
+.service-cover:hover img { transform: scale(1.05); }
+.service-price-tag {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    background: rgba(255, 255, 255, .95);
+    color: var(--primary);
+    padding: .25rem .75rem;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    font-size: .82rem;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(8px);
+}
+</style>
 
 <?php require APP_PATH . '/Views/admin/partials/footer.php'; ?>

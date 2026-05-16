@@ -53,6 +53,10 @@
         initFormSubmitLoaders();
         initAnimatedCounters();
         initSettingsTests();
+        initScrollReveal();
+        initHoverLift();
+        initPageTransition();
+        initMobileFloatingAction();
     });
 
 
@@ -453,5 +457,71 @@
             else el.textContent = (target % 1 === 0) ? Math.round(target).toLocaleString('tr-TR') : target.toFixed(1);
         };
         requestAnimationFrame(step);
+    }
+
+
+    /* --------------------------------------------------------
+     * 13 Scroll reveal — every panel/kpi-card/stat-card animates in
+     * -------------------------------------------------------- */
+    function initScrollReveal() {
+        const candidates = [
+            ...$$('[data-reveal]'),
+            ...$$('.kpi-card'),
+            ...$$('.stat-card'),
+            ...$$('.panel'),
+            ...$$('.table-rounded'),
+            ...$$('.chart-card'),
+            ...$$('.settings-card')
+        ];
+        if (!candidates.length || !('IntersectionObserver' in window)) {
+            candidates.forEach(el => el.classList.add('visible'));
+            return;
+        }
+        candidates.forEach(el => {
+            if (!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', '');
+        });
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((e, i) => {
+                if (!e.isIntersecting) return;
+                e.target.style.transitionDelay = (Math.min(i * 30, 220)) + 'ms';
+                e.target.classList.add('visible');
+                io.unobserve(e.target);
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+        candidates.forEach(el => io.observe(el));
+    }
+
+    /* --------------------------------------------------------
+     * 14 Hover-lift global helper — applied to cards lacking it
+     * -------------------------------------------------------- */
+    function initHoverLift() {
+        const targets = $$('.panel, .kpi-card, .stat-card, .package-card, .template-card, .settings-card, .chart-card');
+        targets.forEach(el => {
+            if (!el.classList.contains('hover-lift')) el.classList.add('hover-lift');
+        });
+    }
+
+    /* --------------------------------------------------------
+     * 15 Page transition — main content fades up on load
+     * -------------------------------------------------------- */
+    function initPageTransition() {
+        const main = $('.admin-content');
+        if (!main) return;
+        main.classList.add('fade-up');
+    }
+
+    /* --------------------------------------------------------
+     * 16 Mobile floating action — quick "New Appointment" on mobile
+     * -------------------------------------------------------- */
+    function initMobileFloatingAction() {
+        if (document.querySelector('.floating-action')) return;
+        const path = (window.location.search || '');
+        if (path.includes('appointments/create')) return;
+        const btn = document.createElement('a');
+        btn.className = 'floating-action';
+        btn.href = (window.APP_BASE || '/') + 'admin/?route=appointments/create';
+        btn.title = 'Yeni Randevu';
+        btn.innerHTML = '<i class="bi bi-plus-lg"></i>';
+        document.body.appendChild(btn);
     }
 })();

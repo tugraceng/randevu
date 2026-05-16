@@ -32,13 +32,13 @@ $vars = ['{name}','{phone}','{email}','{date}','{time}','{service}','{staff}','{
         <div class="panel mb-3 template-card">
             <div class="panel-header">
                 <div>
-                    <h6 class="mb-1">
-                        <span class="badge bg-light text-dark"><i class="bi bi-<?= e($tpl['channel'] === 'sms' ? 'chat-dots' : ($tpl['channel'] === 'whatsapp' ? 'whatsapp' : 'envelope')) ?> me-1"></i><?= e(strtoupper($tpl['channel'])) ?></span>
+                    <h6 class="mb-1 d-flex align-items-center gap-2">
+                        <span class="chip chip-primary"><i class="bi bi-<?= e($tpl['channel'] === 'sms' ? 'chat-dots' : ($tpl['channel'] === 'whatsapp' ? 'whatsapp' : 'envelope')) ?> me-1"></i><?= e(strtoupper($tpl['channel'])) ?></span>
                         <?= e($tpl['title']) ?>
                     </h6>
                     <small class="text-muted">Şablon kodu: <code><?= e($tpl['key'] ?? $tpl['code'] ?? '—') ?></code></small>
                 </div>
-                <span class="badge <?= !empty($tpl['status']) ? 'bg-success' : 'bg-secondary' ?>">
+                <span class="status-pill <?= !empty($tpl['status']) ? 'status-approved' : 'status-cancelled' ?>">
                     <?= !empty($tpl['status']) ? 'Aktif' : 'Pasif' ?>
                 </span>
             </div>
@@ -69,7 +69,12 @@ $vars = ['{name}','{phone}','{email}','{date}','{time}','{service}','{staff}','{
         </div>
         <?php endforeach; ?>
         <?php if (empty($templates)): ?>
-        <div class="empty-state"><div class="icon"><i class="bi bi-chat-dots"></i></div><h6>Şablon bulunamadı</h6></div>
+        <div class="empty-state">
+            <div class="icon"><i class="bi bi-chat-dots"></i></div>
+            <h6>Şablon bulunamadı</h6>
+            <p>Seçili kanal için tanımlı şablon yok. Filtreyi değiştirin veya tüm şablonları görüntüleyin.</p>
+            <a href="<?= admin_url('?route=messages&channel=all') ?>" class="btn btn-soft btn-sm"><i class="bi bi-collection me-1"></i> Tümünü Göster</a>
+        </div>
         <?php endif; ?>
     </div>
 
@@ -90,9 +95,9 @@ $vars = ['{name}','{phone}','{email}','{date}','{time}','{service}','{staff}','{
         <div class="panel">
             <div class="panel-header"><h6><i class="bi bi-braces me-1"></i> Kullanılabilir Değişkenler</h6></div>
             <div class="panel-body">
-                <div class="template-vars">
+                <div class="var-panel">
                     <?php foreach ($vars as $v): ?>
-                    <span class="var"><?= e($v) ?></span>
+                    <span class="var-btn"><?= e($v) ?></span>
                     <?php endforeach; ?>
                 </div>
                 <small class="form-help mt-3 d-block">Mesaj alanında imleci nereye yerleştirirseniz, değişken oraya eklenir.</small>

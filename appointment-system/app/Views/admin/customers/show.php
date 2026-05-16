@@ -87,23 +87,30 @@ $verified = !empty($c['email_verified_at']);
 
     <!-- APPOINTMENTS ========================================= -->
     <div class="tab-pane fade" id="tab-appointments">
-        <div class="panel">
+        <div class="table-rounded">
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
-                    <thead><tr><th>Tarih</th><th>Hizmet</th><th>Personel</th><th>Durum</th><th>Ödeme</th><th></th></tr></thead>
+                    <thead><tr><th>Tarih</th><th>Hizmet</th><th>Personel</th><th>Durum</th><th>Ödeme</th><th class="text-end">İşlem</th></tr></thead>
                     <tbody>
                         <?php foreach ($appointments as $a): ?>
                         <tr>
-                            <td><?= format_date($a['appointment_date']) ?><br><small class="text-muted"><?= format_time($a['start_time']) ?></small></td>
+                            <td><strong><?= format_date($a['appointment_date']) ?></strong><br><small class="text-muted"><i class="bi bi-clock me-1"></i><?= format_time($a['start_time']) ?></small></td>
                             <td><?= e($a['service_name']) ?></td>
-                            <td><?= e($a['staff_name'] ?? '-') ?></td>
+                            <td><?= e($a['staff_name'] ?? '—') ?></td>
                             <td><?= status_badge($a['status']) ?></td>
                             <td><?= status_badge($a['payment_status']) ?></td>
-                            <td class="text-end"><a href="<?= admin_url('?route=appointments/show&id=' . (int)$a['id']) ?>" class="btn btn-soft btn-sm"><i class="bi bi-eye"></i></a></td>
+                            <td class="text-end"><a href="<?= admin_url('?route=appointments/show&id=' . (int)$a['id']) ?>" class="btn-icon" title="Detay"><i class="bi bi-eye"></i></a></td>
                         </tr>
                         <?php endforeach; ?>
                         <?php if (empty($appointments)): ?>
-                        <tr><td colspan="6"><div class="empty-state"><div class="icon"><i class="bi bi-calendar-x"></i></div><h6>Henüz randevu yok</h6></div></td></tr>
+                        <tr><td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon"><i class="bi bi-calendar-x"></i></div>
+                                <h6>Henüz randevu yok</h6>
+                                <p>Bu müşteri için ilk randevuyu oluşturun.</p>
+                                <a href="<?= admin_url('?route=appointments/create&customer_id=' . (int)$c['id']) ?>" class="btn btn-primary btn-sm"><i class="bi bi-calendar-plus me-1"></i> Randevu Oluştur</a>
+                            </div>
+                        </td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -168,22 +175,28 @@ $verified = !empty($c['email_verified_at']);
 
     <!-- PAYMENTS ============================================= -->
     <div class="tab-pane fade" id="tab-payments">
-        <div class="panel">
+        <div class="table-rounded">
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <thead><tr><th>#</th><th>Tutar</th><th>Sağlayıcı</th><th>Durum</th><th>Tarih</th></tr></thead>
                     <tbody>
                         <?php foreach ($payments as $p): ?>
                         <tr>
-                            <td>#<?= (int)$p['id'] ?></td>
-                            <td><strong><?= format_money((float)$p['amount']) ?></strong></td>
-                            <td><?= e($p['provider'] ?? 'manual') ?></td>
+                            <td><span class="chip chip-muted">#<?= (int)$p['id'] ?></span></td>
+                            <td><strong class="text-primary"><?= format_money((float)$p['amount']) ?></strong></td>
+                            <td><span class="chip"><?= e(strtoupper($p['provider'] ?? 'manual')) ?></span></td>
                             <td><?= status_badge($p['status']) ?></td>
                             <td><?= format_date($p['paid_at'] ?? $p['created_at']) ?></td>
                         </tr>
                         <?php endforeach; ?>
                         <?php if (empty($payments)): ?>
-                        <tr><td colspan="5"><div class="empty-state"><div class="icon"><i class="bi bi-cash-coin"></i></div><h6>Ödeme bulunamadı</h6></div></td></tr>
+                        <tr><td colspan="5">
+                            <div class="empty-state">
+                                <div class="icon"><i class="bi bi-cash-coin"></i></div>
+                                <h6>Ödeme bulunamadı</h6>
+                                <p>Henüz bu müşteriye ait ödeme kaydı yok.</p>
+                            </div>
+                        </td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>

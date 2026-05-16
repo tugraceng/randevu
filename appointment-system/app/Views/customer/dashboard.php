@@ -6,10 +6,10 @@ $totalSessions = array_sum(array_column($packages, 'remaining_sessions'));
 $user = customer_user();
 ?>
 
-<div class="c-card-lg mb-4" style="background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); color:#fff;">
+<div class="customer-hero-card mb-4">
     <div class="row align-items-center g-3">
         <div class="col-md-8">
-            <h4 class="text-white mb-1">Hoş geldiniz, <?= e($user['first_name'] ?? '') ?> 👋</h4>
+            <h4 class="text-white mb-1">Hoş geldiniz, <?= e($user['first_name'] ?? '') ?></h4>
             <p class="mb-0 opacity-75">Randevularınızı, paketlerinizi ve ödemelerinizi tek bir yerden takip edin.</p>
         </div>
         <div class="col-md-4 text-md-end">
@@ -67,11 +67,18 @@ $user = customer_user();
                         <tr>
                             <td><strong><?= e($a['service_name']) ?></strong></td>
                             <td><?= format_date($a['appointment_date']) ?> · <small class="text-muted"><?= format_time($a['start_time']) ?></small></td>
-                            <td><span class="badge bg-<?= $a['status']==='completed'?'success':($a['status']==='cancelled'?'secondary':'primary') ?>"><?= e($a['status']) ?></span></td>
+                            <td><?= status_badge($a['status']) ?></td>
                         </tr>
                         <?php endforeach; ?>
                         <?php if (empty($appointments)): ?>
-                        <tr><td colspan="3"><div class="empty-state"><i class="bi bi-calendar-x"></i><br>Henüz randevu yok</div></td></tr>
+                        <tr><td colspan="3">
+                            <div class="empty-state">
+                                <div class="icon"><i class="bi bi-calendar-x"></i></div>
+                                <h6>Henüz randevunuz yok</h6>
+                                <p>İlk randevunuzu hemen oluşturabilirsiniz.</p>
+                                <a href="<?= customer_url('?route=appointments/create') ?>" class="btn btn-primary btn-sm"><i class="bi bi-calendar-plus me-1"></i> Randevu Oluştur</a>
+                            </div>
+                        </td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -90,12 +97,18 @@ $user = customer_user();
                         <?php foreach (array_slice($payments, 0, 5) as $p): ?>
                         <tr>
                             <td><?= format_date($p['paid_at'] ?? $p['created_at']) ?></td>
-                            <td><strong><?= format_money((float)$p['amount']) ?></strong></td>
-                            <td><span class="badge bg-<?= $p['status']==='paid'?'success':($p['status']==='failed'?'danger':'warning') ?>"><?= e($p['status']) ?></span></td>
+                            <td><strong class="text-primary"><?= format_money((float)$p['amount']) ?></strong></td>
+                            <td><?= status_badge($p['status']) ?></td>
                         </tr>
                         <?php endforeach; ?>
                         <?php if (empty($payments)): ?>
-                        <tr><td colspan="3"><div class="empty-state"><i class="bi bi-cash"></i><br>Ödeme yok</div></td></tr>
+                        <tr><td colspan="3">
+                            <div class="empty-state">
+                                <div class="icon"><i class="bi bi-cash"></i></div>
+                                <h6>Ödeme yok</h6>
+                                <p>Bir paket satın aldığınızda burada görünür.</p>
+                            </div>
+                        </td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>

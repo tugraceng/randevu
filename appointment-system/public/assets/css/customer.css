@@ -568,6 +568,113 @@ p  { margin: 0 0 var(--c-space-3); color: var(--c-ink-500); }
 
 
 /* ============================================================
+ * 15b CUSTOMER TABLE WRAPPER (premium SaaS-style table)
+ * ============================================================ */
+.c-card .table thead th {
+    background: var(--c-surface-alt);
+    color: var(--c-ink-500);
+    font-weight: 600;
+    font-size: .76rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: .85rem 1rem;
+    border-bottom: 1px solid var(--c-ink-100);
+}
+.c-card .table tbody td {
+    padding: .9rem 1rem;
+    border-color: var(--c-ink-50, var(--c-ink-100));
+    vertical-align: middle;
+    color: var(--c-ink-700);
+}
+.c-card .table tbody tr:hover { background: var(--c-primary-soft); }
+.c-card .table tbody tr:last-child td { border-bottom: 0; }
+
+
+/* ============================================================
+ * 16a CUSTOMER HERO CARD (dashboard greeting banner)
+ * ============================================================ */
+.customer-hero-card {
+    background: var(--c-grad);
+    color: #fff;
+    border-radius: var(--c-radius-xl);
+    padding: 1.75rem 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--c-shadow);
+}
+.customer-hero-card::before,
+.customer-hero-card::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+}
+.customer-hero-card::before { top: -60px; right: -40px; width: 240px; height: 240px; background: rgba(255,255,255,.18); }
+.customer-hero-card::after  { bottom: -80px; left: -40px;  width: 220px; height: 220px; background: rgba(255,255,255,.10); }
+.customer-hero-card > * { position: relative; z-index: 1; }
+.customer-hero-card h4 { color: #fff; font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
+.customer-hero-card .btn-light {
+    border-radius: var(--c-radius-pill);
+    padding: .6rem 1.4rem;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, .12);
+}
+
+
+/* ============================================================
+ * 16b GLOBAL UTILITIES & MICRO-INTERACTIONS
+ * ============================================================ */
+.hover-lift { transition: transform var(--c-t-med), box-shadow var(--c-t-med); }
+.hover-lift:hover { transform: translateY(-4px); box-shadow: var(--c-shadow); }
+
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.4,.0,.2,1);
+}
+[data-reveal].visible { opacity: 1; transform: translateY(0); }
+
+.fade-up { animation: fade-up .45s cubic-bezier(.4,.0,.2,1) both; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+.bottom-sheet {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: var(--c-surface);
+    border-radius: var(--c-radius-xl) var(--c-radius-xl) 0 0;
+    padding: 1.25rem;
+    z-index: 1100;
+    box-shadow: 0 -16px 40px rgba(15, 23, 42, .18);
+    transform: translateY(100%);
+    transition: transform var(--c-t-med);
+}
+.bottom-sheet.active { transform: translateY(0); }
+.bottom-sheet::before {
+    content: '';
+    width: 44px; height: 4px;
+    background: var(--c-ink-200);
+    border-radius: var(--c-radius-pill);
+    display: block;
+    margin: -.35rem auto 1rem;
+}
+
+.floating-action {
+    position: fixed;
+    bottom: 18px; right: 18px;
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: var(--c-grad);
+    color: #fff;
+    display: none;
+    align-items: center; justify-content: center;
+    box-shadow: 0 14px 30px rgba(79, 70, 229, .42);
+    z-index: 990;
+    border: 0;
+    font-size: 1.4rem;
+}
+
+
+/* ============================================================
  * 17 RESPONSIVE
  * ============================================================ */
 @media (max-width: 991.98px) {
@@ -590,8 +697,16 @@ p  { margin: 0 0 var(--c-space-3); color: var(--c-ink-500); }
     .customer-sidebar .foot { margin-top: 0; padding-top: 0; margin-left: auto; }
 }
 
+@media (max-width: 767.98px) {
+    .floating-action { display: inline-flex; }
+}
+
 @media (max-width: 575.98px) {
     .customer-topbar { padding: 0 1rem; }
-    .customer-content { padding: 1rem; }
+    .customer-content { padding: 1rem 1rem 5rem; }
     .customer-topbar h4 { font-size: .95rem; }
+    .c-stat { padding: 1rem; }
+    .c-stat .value { font-size: 1.35rem; }
+    .c-card { padding: 1rem; }
+    .c-card-lg { padding: 1.25rem; }
 }

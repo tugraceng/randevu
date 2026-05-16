@@ -180,6 +180,80 @@ Her dosyada **root variables + spacing scale + radius scale + shadow scale + tra
 
 Helper artık `<span class="status-pill status-{status}">` üretir; renk her durum için CSS'te tanımlı.
 
+---
+
+## UI/UX Polish v2 — Unified Design Language
+
+Tüm ekranlar (frontend, admin, customer) **tek bir design language** altında birleştirildi. v1'de bırakılan tutarsızlıklar tek tek kapatıldı:
+
+### Design system v2 (yeni eklenenler)
+
+| Token / Helper | Ne yapar |
+|----------------|----------|
+| `.page-section` | Tutarlı vertical rhythm — section'lar arası standardize boşluk |
+| `.section-divider`, `.shimmer-divider` | Hafif ayraçlar, sayfa içinde nefes |
+| `.hover-lift` | Tek class ile premium hover (transform + shadow). Tüm panel/kpi/stat/table-rounded'a JS ile otomatik atanır |
+| `[data-reveal]` + global IntersectionObserver | Admin + customer paneldeki kartlar görünür olduğunda fade-up animasyonu |
+| `.fade-up` | `.admin-content` ve `.customer-content` sayfa açılışında smooth fade-up |
+| `.glass-card` | Yumuşak glassmorphism (frontend + admin) |
+| `.bottom-sheet` | Mobil için aşağıdan kayan action sheet (`active` class ile) |
+| `.floating-action` | Mobilde sağ-alt floating "Yeni Randevu" butonu (admin + customer panel) |
+| `.customer-hero-card` | Müşteri dashboard hoş geldin banner'ı — gradient + blur orb decoration |
+| `.service-cover` + `.service-price-tag` | Hizmet kartı görselinde köşede fiyat etiketi, hover'da görsel zoom |
+| `.campaign-cover` | Kampanya kartı için gradient cover image alanı |
+
+### Legacy alias katmanı
+
+v1'de bırakılan eski class isimleri silinmedi → **CSS'te otomatik alias'landı**. Böylece tüm view'lar bozulmadan yeni design language'i kazandı:
+
+- `.stat-card` + `.tone-success / .tone-warning / .tone-danger / .tone-info` → KPI card stiline alias
+- `.table-card` → `.table-rounded` alias
+- `.chart-card .chart-head` → standart chart head alias
+- `.form-fieldset` → tüm formlarda tutarlı gruplandırma
+- `.upload-card` → dropzone tarzı dosya yükleme görseli
+- `.slots-grid .slot` → admin randevu saat slotları (frontend `.slot-grid` ile aynı dil)
+- `.customer-hero` (`.avatar`, `.meta`, `.stat`) → CRM müşteri detay hero kartı (gradient dark + blur orb)
+- `.timeline .timeline-item` → admin paket logları için soft timeline (gradient nokta + bağlantı çizgisi)
+- `.template-card` → mesaj şablonu kartı hover
+- `.package-card` → paket kataloğu hover-lift
+- `.btn-soft`, `.panel-foot`, `.filter-actions` → küçük helper'lar
+
+### JS modülasyonu — admin.js'e eklenen yeni bölümler
+
+| Bölüm | Açıklama |
+|-------|----------|
+| **13 Scroll reveal** | `.kpi-card`, `.stat-card`, `.panel`, `.table-rounded`, `.chart-card`, `.settings-card` → görünür olunca staggered fade-in |
+| **14 Hover-lift global** | Yukarıdaki kartlara `.hover-lift` class'ı otomatik eklenir |
+| **15 Page transition** | `.admin-content` sayfa açılışında `.fade-up` |
+| **16 Mobile floating action** | Mobilde sağ-alt "Yeni Randevu" butonu; randevu/create sayfasında gizlenir |
+
+### `app.js` — customer panel için micro-interactions
+
+- `.customer-content` fade-up entrance
+- `.c-card`, `.c-stat`, `.c-card-lg`, `.service-select-card`, `.loyalty-card` → otomatik hover-lift
+- IntersectionObserver staggered reveal
+- Form submit → buton spinner state
+
+### Mobil UX iyileştirmeleri
+
+- `767px` altı: admin content padding küçülür, floating action butonu görünür, toast'lar viewport genişliğinde, kpi/stat değer fontları küçülür
+- `575px` altı: topbar daralır, breadcrumb küçülür, panel-header wrap olur, fieldset padding düşer
+- Customer panelde aynı breakpoint'ler eşlenir
+- Tablolar tüm panellerde `overflow-x: auto` (yatay kaydırılabilir)
+
+### Tüm ekran tutarlılığı garantileri
+
+- Tüm "durum" bilgisi artık `status_badge()` helper'ı üzerinden (admin + customer): aynı renk dili, aynı dot indicator
+- Tüm liste ekranlarında premium empty state: dairesel ikon + başlık + açıklama + CTA
+- Tüm form ekranlarında `fieldset` / `.form-fieldset` ile mantıksal gruplandırma + legend kıvılcımı (`text-transform: uppercase; color: primary`)
+- Tüm kartlar `hover-lift` (JS ile veya class ile)
+- Tüm `<table>` thead → büyük harf, küçük letter-spacing, soft alt çizgi
+- Bootstrap `nav-tabs` / `pagination` da custom alias'larla design system'e bağlandı
+
+> Sonuç: Frontend, admin paneli ve müşteri paneli artık **aynı ürünün üç farklı yüzü** gibi hissediliyor. Bootstrap base'i hâlâ kullanılıyor ama görsel olarak hiçbir yerde "default bootstrap" hissi kalmadı.
+
+---
+
 ## UI/UX Büyük Güncelleme
 
 Frontend, admin paneli ve müşteri paneli baştan sona "satılabilir, modern ve premium" anlayışla yeniden tasarlandı. Bootstrap 5 temel alındı, fakat klasik Bootstrap görünümünden uzaklaşmak için tüm bileşenler özel CSS değişkenleri ile kapsamlı şekilde özelleştirildi.
