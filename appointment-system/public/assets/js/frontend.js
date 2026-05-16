@@ -24,6 +24,9 @@
         initMobileCta();
         initLightbox();
         initLiveHeroStrip();
+        initRipple();
+        initRevealCommonCards();
+        initFadeUp();
     });
 
 
@@ -122,14 +125,16 @@
                 if (!e.isIntersecting) return;
                 const el     = e.target;
                 const target = parseFloat(el.dataset.counter) || 0;
+                const suffix = el.dataset.suffix || '';
+                const prefix = el.dataset.prefix || '';
                 const dur    = 1400;
                 const start  = performance.now();
                 const step = (now) => {
                     const p = Math.min((now - start) / dur, 1);
                     const ease = 1 - Math.pow(1 - p, 3);
-                    el.textContent = formatNumber(target * ease);
+                    el.textContent = prefix + formatNumber(target * ease) + suffix;
                     if (p < 1) requestAnimationFrame(step);
-                    else el.textContent = formatNumber(target);
+                    else el.textContent = prefix + formatNumber(target) + suffix;
                 };
                 requestAnimationFrame(step);
                 io.unobserve(el);
@@ -141,6 +146,58 @@
         if (n >= 1000) return Math.round(n).toLocaleString('tr-TR');
         if (n % 1 === 0) return Math.round(n).toString();
         return n.toFixed(1);
+    }
+
+
+    /* --------------------------------------------------------
+     * 09 Ripple effect on .ripple buttons
+     * -------------------------------------------------------- */
+    function initRipple() {
+        document.addEventListener('click', (e) => {
+            const el = e.target.closest('.ripple');
+            if (!el || el.disabled) return;
+            const rect = el.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const fx   = document.createElement('span');
+            fx.className = 'ripple-fx';
+            fx.style.width = fx.style.height = size + 'px';
+            fx.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            fx.style.top  = (e.clientY - rect.top  - size / 2) + 'px';
+            el.appendChild(fx);
+            setTimeout(() => fx.remove(), 600);
+        });
+    }
+
+
+    /* --------------------------------------------------------
+     * 10 Auto reveal common cards/sections on scroll (no markup needed)
+     * -------------------------------------------------------- */
+    function initRevealCommonCards() {
+        const targets = $$(
+            '.section, .card-pro, .kpi-pro, .trust-card, .service-card, ' +
+            '.team-card, .pkg-card, .testimonial-card, .empty-state-pro'
+        );
+        if (!targets.length || !('IntersectionObserver' in window)) return;
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (!e.isIntersecting) return;
+                e.target.classList.add('is-visible');
+                io.unobserve(e.target);
+            });
+        }, { threshold: 0.08 });
+        targets.forEach(el => {
+            if (!el.hasAttribute('data-reveal')) el.setAttribute('data-reveal', '');
+            io.observe(el);
+        });
+    }
+
+
+    /* --------------------------------------------------------
+     * 11 Fade-up entrance for the hero only (page load)
+     * -------------------------------------------------------- */
+    function initFadeUp() {
+        const hero = document.querySelector('.hero-section');
+        if (hero) hero.classList.add('fade-up');
     }
 
 

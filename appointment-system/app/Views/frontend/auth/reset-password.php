@@ -13,8 +13,10 @@ $flashOk   = flash('success');
     <title><?= e($title ?? 'Şifre Sıfırla') ?> · <?= e($siteTitle) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="<?= base_url('assets/css/tokens.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/css/frontend.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/css/polish.css') ?>" rel="stylesheet">
     <style>
         :root {
             --primary: <?= e($primary) ?>;

@@ -2,17 +2,24 @@
 require APP_PATH . '/Views/admin/partials/header.php';
 $prev = date('Y-m', strtotime($month . '-01 -1 month'));
 $next = date('Y-m', strtotime($month . '-01 +1 month'));
-$monthLabel = strftime('%B %Y', strtotime($month . '-01')) ?: $month;
+
+$trMonths = [
+    1 => 'Ocak', 2 => 'Şubat', 3 => 'Mart', 4 => 'Nisan',
+    5 => 'Mayıs', 6 => 'Haziran', 7 => 'Temmuz', 8 => 'Ağustos',
+    9 => 'Eylül', 10 => 'Ekim', 11 => 'Kasım', 12 => 'Aralık',
+];
+$monthTs    = strtotime($month . '-01');
+$monthLabel = $monthTs ? ($trMonths[(int) date('n', $monthTs)] . ' ' . date('Y', $monthTs)) : $month;
 ?>
 
 <div class="section-title-bar">
     <div>
         <h5>Randevu Takvimi</h5>
-        <small class="text-muted"><?= e($month) ?> dönemi · Toplam <?= count($events) ?> randevu</small>
+        <small class="text-muted"><?= e($monthLabel) ?> · Toplam <?= count($events) ?> randevu</small>
     </div>
     <div class="d-flex gap-2 align-items-center">
         <a href="<?= admin_url('?route=appointments/calendar&month=' . $prev) ?>" class="btn btn-icon" title="Önceki ay"><i class="bi bi-chevron-left"></i></a>
-        <span class="chip chip-primary px-3 py-2"><i class="bi bi-calendar3 me-1"></i><?= e($month) ?></span>
+        <span class="chip chip-primary px-3 py-2"><i class="bi bi-calendar3 me-1"></i><?= e($monthLabel) ?></span>
         <a href="<?= admin_url('?route=appointments/calendar&month=' . $next) ?>" class="btn btn-icon" title="Sonraki ay"><i class="bi bi-chevron-right"></i></a>
         <a href="<?= admin_url('?route=appointments') ?>" class="btn btn-outline-secondary"><i class="bi bi-list me-1"></i> Liste</a>
         <a href="<?= admin_url('?route=appointments/create') ?>" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Yeni</a>

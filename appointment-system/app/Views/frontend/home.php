@@ -25,8 +25,10 @@ $trust = [
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="<?= base_url('assets/css/tokens.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/css/frontend.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/css/polish.css') ?>" rel="stylesheet">
     <style>
         :root {
             --primary: <?= e($primary) ?>;
@@ -36,25 +38,30 @@ $trust = [
         }
     </style>
 </head>
-<body>
+<body class="ps-context">
 <?php require APP_PATH . '/Views/frontend/partials/navbar.php'; ?>
 
 <!-- HERO ====================================================== -->
-<section class="hero-section" id="home">
+<section class="hero-section hero-pro" id="home">
+    <div class="hero-orbs" aria-hidden="true">
+        <span class="orb orb-1"></span>
+        <span class="orb orb-2"></span>
+        <span class="orb orb-3"></span>
+    </div>
     <div class="container">
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
                 <span class="hero-eyebrow">
                     <i class="bi bi-stars"></i> <?= e($settings['business_name'] ?? $siteTitle) ?>
                 </span>
-                <h1>
+                <h1 class="hero-pro__title">
                     <?= e($hero['title'] ?? 'Bakımınızı online planlayın, dakikalar içinde randevu alın.') ?>
                 </h1>
-                <p class="lead">
+                <p class="lead hero-pro__lead">
                     <?= e($hero['subtitle'] ?? $hero['content'] ?? 'Diş kliniği, güzellik merkezi, berber ya da spa — sektörden bağımsız modern bir randevu deneyimi.') ?>
                 </p>
-                <div class="d-flex flex-wrap gap-2 mt-4">
-                    <button type="button" class="btn btn-cta btn-lg" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                <div class="hero-pro__cta">
+                    <button type="button" class="btn btn-cta btn-lg ripple" data-book-start>
                         <i class="bi bi-calendar-plus me-1"></i> Hemen Randevu Al
                     </button>
                     <?php if ($wa): ?>
@@ -63,22 +70,37 @@ $trust = [
                     </a>
                     <?php endif; ?>
                 </div>
-                <div class="d-flex flex-wrap gap-4 mt-4 text-white-50 small">
-                    <span><i class="bi bi-check-circle text-success me-1"></i> Ücretsiz online randevu</span>
-                    <span><i class="bi bi-check-circle text-success me-1"></i> İptal/değişim kolay</span>
+                <ul class="hero-pro__bullets">
+                    <li><i class="bi bi-check-circle-fill"></i> Ücretsiz online randevu</li>
+                    <li><i class="bi bi-check-circle-fill"></i> İptal & değişim 1 tıkla</li>
+                    <li><i class="bi bi-check-circle-fill"></i> SMS / WhatsApp hatırlatma</li>
+                </ul>
+                <div class="hero-pro__stats">
+                    <div class="hp-stat">
+                        <strong class="t-counter" data-counter="<?= (int)($settings['stat_today_bookings'] ?? 23) ?>">0</strong>
+                        <span>Bugün randevu</span>
+                    </div>
+                    <div class="hp-stat">
+                        <strong class="t-counter" data-counter="<?= (int)($settings['stat_total_customers'] ?? 1280) ?>" data-suffix="+">0</strong>
+                        <span>Mutlu müşteri</span>
+                    </div>
+                    <div class="hp-stat">
+                        <strong>4.9<span class="hp-star">★</span></strong>
+                        <span>Müşteri puanı</span>
+                    </div>
                 </div>
                 <div class="hero-live-strip">
                     <span class="dot"></span>
-                    Bugün <strong>&nbsp;<span data-live-count="<?= (int)($settings['stat_today_bookings'] ?? 23) ?>">23</span>&nbsp;</strong> kişi randevu aldı
+                    Son 1 saat içinde <strong>&nbsp;<span data-counter="12">0</span>&nbsp;</strong> kişi rezerve etti
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="hero-preview">
+                <div class="hero-preview lift">
                     <div class="preview-head">
                         <div class="preview-avatar"><i class="bi bi-calendar2-week"></i></div>
                         <div>
                             <strong class="d-block">Randevu Önizleme</strong>
-                            <small class="text-white-50">Bilgileriniz adım adım doldurulur</small>
+                            <small class="text-white-50">Adım adım rezervasyon</small>
                         </div>
                         <span class="badge bg-success ms-auto"><i class="bi bi-shield-check me-1"></i>SSL</span>
                     </div>
@@ -95,16 +117,21 @@ $trust = [
                         <span><?= date('d.m.Y') ?></span>
                     </div>
                     <div class="preview-row">
-                        <span class="label">Saat</span>
-                        <span class="text-warning fw-semibold">10:00 · 10:30 · 11:00</span>
+                        <span class="label">Müsait Saatler</span>
+                        <span class="preview-slots">
+                            <em>10:00</em><em>10:30</em><em class="hot">11:00</em>
+                        </span>
                     </div>
                     <div class="preview-row">
                         <span class="label">Tahmini Tutar</span>
                         <strong><?= format_money((float)($services[0]['price'] ?? 350)) ?></strong>
                     </div>
-                    <button class="btn btn-cta w-100 mt-3" data-bs-toggle="modal" data-bs-target="#appointmentModal">
-                        Bu özet ile devam et
+                    <button class="btn btn-cta w-100 mt-3 ripple" data-book-start>
+                        <i class="bi bi-arrow-right-circle me-1"></i> Bu özet ile devam et
                     </button>
+                    <div class="preview-trust">
+                        <i class="bi bi-shield-lock"></i> KVKK uyumlu · 256-bit şifreli rezervasyon
+                    </div>
                 </div>
             </div>
         </div>

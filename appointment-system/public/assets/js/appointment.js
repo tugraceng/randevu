@@ -52,6 +52,10 @@
         });
         PANELS.forEach((el, i) => el.classList.toggle('active', i + 1 === n));
 
+        // Progress bar — smooth fill driven by current step
+        const bar = ROOT.querySelector('[data-booking-bar]');
+        if (bar) bar.style.width = ((n / total) * 100).toFixed(2) + '%';
+
         if (btnPrev)   btnPrev.style.visibility = n === 1 ? 'hidden' : 'visible';
         if (btnNext)   btnNext.style.display = n === total ? 'none' : 'inline-flex';
         if (btnSubmit) btnSubmit.style.display = n === total ? 'inline-flex' : 'none';
@@ -118,15 +122,16 @@
         const grid = $('[data-slot-grid]');
         if (!grid) return;
         if (!state.service?.id || !state.date) {
-            grid.innerHTML = '<small class="text-muted">Önce hizmet ve tarih seçin.</small>';
+            grid.innerHTML = '<div class="empty-state-pro" style="grid-column:1/-1;padding:1.5rem;"><div class="empty-state-pro__icon"><i class="bi bi-calendar3"></i></div><h4>Önce tarih seçin</h4><p>Tarih seçtiğinizde uygun saatler burada listelenecek.</p></div>';
             return;
         }
         grid.innerHTML = '';
-        // skeletons
-        for (let i = 0; i < 8; i++) {
+        // premium skeletons
+        for (let i = 0; i < 10; i++) {
             const sk = document.createElement('span');
-            sk.className = 'slot-tile skeleton';
-            sk.style.minHeight = '40px';
+            sk.className = 'slot-tile-pro skeleton-block';
+            sk.style.height = '44px';
+            sk.style.borderRadius = 'var(--r-md)';
             grid.appendChild(sk);
         }
 
@@ -141,16 +146,17 @@
     function renderSlots(grid, slots) {
         grid.innerHTML = '';
         if (!slots.length) {
-            grid.innerHTML = '<small class="text-muted">Bu güne uygun saat bulunamadı.</small>';
+            grid.innerHTML = '<div class="empty-state-pro" style="grid-column:1/-1;padding:1.5rem;"><div class="empty-state-pro__icon" style="background:rgba(239,68,68,.12);color:#ef4444;"><i class="bi bi-x-circle"></i></div><h4>Bu güne uygun saat yok</h4><p>Farklı bir tarih veya personel seçerek tekrar deneyin.</p></div>';
             return;
         }
-        slots.forEach(t => {
+        slots.forEach((t, i) => {
             const el = document.createElement('div');
-            el.className = 'slot-tile';
+            el.className = 'slot-tile-pro';
             el.textContent = t;
+            el.style.animation = `ps-fadeUp .3s ${(i * 25)}ms ease both`;
             el.addEventListener('click', () => {
-                grid.querySelectorAll('.slot-tile').forEach(x => x.classList.remove('selected'));
-                el.classList.add('selected');
+                grid.querySelectorAll('.slot-tile-pro').forEach(x => x.classList.remove('is-selected', 'selected'));
+                el.classList.add('is-selected', 'selected');
                 state.time = t;
                 updateSummary();
             });

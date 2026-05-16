@@ -417,6 +417,22 @@ p  { margin: 0 0 var(--c-space-3); color: var(--c-ink-500); }
 .loyalty-card h5 { color: #fff; }
 .loyalty-card .pkg-row { margin-bottom: 1rem; }
 .loyalty-card .pkg-row:last-child { margin-bottom: 0; }
+.loyalty-card .pkg-progress { margin-bottom: .85rem; }
+.loyalty-card .pkg-progress:last-of-type { margin-bottom: 0; }
+.loyalty-empty {
+    text-align: center;
+    padding: 1.25rem 1rem;
+    background: rgba(255, 255, 255, .08);
+    border: 1px dashed rgba(255, 255, 255, .25);
+    border-radius: 14px;
+    color: rgba(255, 255, 255, .85);
+}
+.loyalty-empty i {
+    font-size: 1.8rem;
+    color: rgba(255, 255, 255, .55);
+    display: block;
+    margin-bottom: .35rem;
+}
 
 .session-progress {
     height: 8px;

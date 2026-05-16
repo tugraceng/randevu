@@ -1,0 +1,163 @@
+/* ==========================================================================
+ * RandevuTakip — Design Tokens (v3, Polish Layer)
+ * Project-wide single source of truth for color, spacing, type, radius,
+ * shadow and motion. Loaded BEFORE each panel's stylesheet so values can
+ * be referenced without conflicts.
+ *
+ * IMPORTANT: never override these in component files; rebind a token to
+ * a brand color in the page <style> instead (theme primary, etc.).
+ * ========================================================================== */
+
+:root {
+
+    /* ----------------------------------------------------------------------
+     * 01 — Brand palette  (rebound by per-page <style> using DB theme color)
+     * -------------------------------------------------------------------- */
+    --brand-50:  #eef2ff;
+    --brand-100: #e0e7ff;
+    --brand-200: #c7d2fe;
+    --brand-300: #a5b4fc;
+    --brand-400: #818cf8;
+    --brand-500: #6366f1;
+    --brand-600: #4f46e5;
+    --brand-700: #4338ca;
+    --brand-800: #3730a3;
+    --brand-900: #312e81;
+
+    /* Semantic */
+    --success-500: #10b981;
+    --warning-500: #f59e0b;
+    --danger-500:  #ef4444;
+    --info-500:    #06b6d4;
+
+    /* Neutral (Slate) — used everywhere for text / borders */
+    --ink-900: #0f172a;
+    --ink-800: #1e293b;
+    --ink-700: #334155;
+    --ink-600: #475569;
+    --ink-500: #64748b;
+    --ink-400: #94a3b8;
+    --ink-300: #cbd5e1;
+    --ink-200: #e2e8f0;
+    --ink-100: #f1f5f9;
+    --ink-50:  #f8fafc;
+
+    /* ----------------------------------------------------------------------
+     * 02 — Spacing scale  (8-pt rhythm)
+     * -------------------------------------------------------------------- */
+    --sp-0:  0;
+    --sp-1:  .25rem;     /*  4px */
+    --sp-2:  .5rem;      /*  8px */
+    --sp-3:  .75rem;     /* 12px */
+    --sp-4:  1rem;       /* 16px */
+    --sp-5:  1.25rem;    /* 20px */
+    --sp-6:  1.5rem;     /* 24px */
+    --sp-7:  2rem;       /* 32px */
+    --sp-8:  2.5rem;     /* 40px */
+    --sp-9:  3rem;       /* 48px */
+    --sp-10: 4rem;       /* 64px */
+    --sp-11: 5rem;       /* 80px */
+    --sp-12: 6rem;       /* 96px */
+
+    /* ----------------------------------------------------------------------
+     * 03 — Radius scale
+     * -------------------------------------------------------------------- */
+    --r-xs:   6px;
+    --r-sm:   10px;
+    --r-md:   14px;
+    --r-lg:   18px;
+    --r-xl:   24px;
+    --r-2xl:  32px;
+    --r-pill: 999px;
+
+    /* ----------------------------------------------------------------------
+     * 04 — Shadow scale  (premium, soft, layered)
+     * -------------------------------------------------------------------- */
+    --sh-xs: 0 1px 2px 0 rgba(15, 23, 42, .04);
+    --sh-sm: 0 1px 3px 0 rgba(15, 23, 42, .07), 0 1px 2px -1px rgba(15, 23, 42, .04);
+    --sh-md: 0 4px 6px -1px rgba(15, 23, 42, .07), 0 2px 4px -2px rgba(15, 23, 42, .04);
+    --sh-lg: 0 12px 24px -10px rgba(15, 23, 42, .15), 0 4px 8px -4px rgba(15, 23, 42, .06);
+    --sh-xl: 0 24px 48px -16px rgba(15, 23, 42, .18), 0 8px 16px -8px rgba(15, 23, 42, .08);
+    --sh-2xl: 0 40px 80px -24px rgba(15, 23, 42, .25);
+    --sh-glow: 0 0 0 4px var(--primary-soft, rgba(79, 70, 229, .15));
+    --sh-inset: inset 0 1px 0 rgba(255, 255, 255, .04);
+
+    /* ----------------------------------------------------------------------
+     * 05 — Typography
+     * -------------------------------------------------------------------- */
+    --font-sans:    'Inter', 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-display: 'Manrope', 'Inter', system-ui, sans-serif;
+
+    /* Fluid type scale: min — fluid — max */
+    --t-xs:      .75rem;      /* 12 */
+    --t-sm:      .875rem;     /* 14 */
+    --t-base:    1rem;        /* 16 */
+    --t-lg:      1.125rem;    /* 18 */
+    --t-xl:      1.25rem;     /* 20 */
+    --t-2xl:     clamp(1.375rem, 1.2rem + .6vw, 1.625rem);  /* 22-26 — card title */
+    --t-3xl:     clamp(1.625rem, 1.3rem + 1vw, 2rem);       /* 26-32 — section title */
+    --t-4xl:     clamp(2rem, 1.5rem + 2.2vw, 2.75rem);      /* 32-44 — page hero */
+    --t-display: clamp(2.5rem, 1.5rem + 4vw, 4rem);         /* 40-64 — landing hero */
+
+    --lh-tight: 1.15;
+    --lh-snug:  1.3;
+    --lh-base:  1.5;
+    --lh-loose: 1.7;
+
+    --tracking-tightest: -.045em;
+    --tracking-tighter:  -.025em;
+    --tracking-tight:    -.015em;
+    --tracking-normal:    0;
+    --tracking-wide:      .04em;
+    --tracking-wider:     .08em;
+
+    --weight-regular: 400;
+    --weight-medium:  500;
+    --weight-semi:    600;
+    --weight-bold:    700;
+    --weight-black:   800;
+
+    /* ----------------------------------------------------------------------
+     * 06 — Motion
+     * -------------------------------------------------------------------- */
+    --ease-out-soft:  cubic-bezier(.22, .61, .36, 1);
+    --ease-in-out:    cubic-bezier(.65, 0, .35, 1);
+    --ease-spring:    cubic-bezier(.34, 1.56, .64, 1);
+    --d-fast:   .15s;
+    --d-base:   .25s;
+    --d-slow:   .4s;
+    --d-slower: .6s;
+
+    /* ----------------------------------------------------------------------
+     * 07 — Z-index ladder
+     * -------------------------------------------------------------------- */
+    --z-base:     1;
+    --z-sticky:   100;
+    --z-dropdown: 800;
+    --z-overlay:  1000;
+    --z-modal:    1050;
+    --z-drawer:   1080;
+    --z-toast:    1100;
+}
+
+
+/* ==========================================================================
+ * 08 — Base font-feature settings  (modern numerals + ligatures)
+ *      Applied at root so every panel inherits without touching component CSS
+ * ========================================================================== */
+html {
+    font-feature-settings: 'cv11', 'ss01', 'ss03', 'cv02', 'cv04', 'cv09', 'tnum', 'kern';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* prefers-reduced-motion: respect user's wish */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

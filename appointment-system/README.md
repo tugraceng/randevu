@@ -182,6 +182,101 @@ Helper artık `<span class="status-pill status-{status}">` üretir; renk her dur
 
 ---
 
+## UI/UX Polish v3 — Product Polish Layer
+
+v3 turunda hiçbir backend/modül/db değişmedi. Sadece **ürün hissi** "özel yazılım"dan "premium SaaS ürünü"ne taşındı. Eklenen iki katman tüm panellere uygulanır:
+
+### Yeni dosyalar
+
+| Dosya | İşi |
+|-------|-----|
+| `public/assets/css/tokens.css` | Tüm panellerde tek kaynak. Spacing (`--sp-1..12`), radius (`--r-xs..2xl`), shadow (`--sh-xs..2xl`), fluid type scale (`--t-xs..display`), motion (`--ease-out-soft`, `--d-fast/base/slow`), z-index ladder. Inter + Manrope feature settings root'tan inherit edilir. `prefers-reduced-motion` honor edilir. |
+| `public/assets/css/polish.css` | Cross-panel **polish layer** — yeni tek component dili. Eski class'ları kırmadan üzerlerine premium hissi koyar. |
+
+Her panel header'ı şu sırayla yükler:
+1. `tokens.css` — design tokens
+2. `<panel>.css` — mevcut admin/customer/frontend stilleri (alias'larla birlikte)
+3. `polish.css` — v3 product polish layer
+
+### Polish layer içindeki component dili
+
+| Component | Class |
+|-----------|-------|
+| Typography ramp | `.t-display`, `.t-h1..h4`, `.t-lead`, `.t-body`, `.t-label`, `.t-num` (tabular nums), `.t-counter` |
+| Page section | `.ps-section`, `.ps-heading` (+ `.ps-eyebrow`, `.ps-title`, `.ps-sub`, `.ps-actions`) |
+| Unified button | `.btn-pro` + tone modifier (`--primary`, `--ghost`, `--soft`, `--success`, `--danger`) + size (`--lg`, `--sm`) |
+| Unified card | `.card-pro` (+`__head`, `__body`, `__foot`) |
+| KPI / stat card | `.kpi-pro` + `tone-success/warning/danger/info`, `.kpi-trend` chips |
+| Empty state | `.empty-state-pro` (+ icon, title, sub, CTA) — eski `.empty-state` aliasla aynı hissi alır |
+| Skeleton loading | `.skeleton-line`, `.skeleton-block`, `.skeleton-circle`, `.skeleton-card`, `.skeleton-row`, `.skeleton-grid` — shimmer animation |
+| Activity feed | `.activity-feed` + `.activity-item` (+ tone modifiers) |
+| Alert banner | `.alert-pro` + `--info/--warn/--success/--danger` (gradient + icon) |
+| Inline badge | `.badge-pro` (dot indicator) + tones |
+| Segmented tabs | `.seg-tabs` (Bootstrap nav alternatifi) |
+| Tooltip-lite | `[data-tip]` + `.has-tip` |
+| Table v3 | `.table-rounded` polish (sticky head opt-in `[data-sticky-head]`, hover row, mobile `[data-table-cards]` ile satır → kart) |
+| Micro | `.lift`, `.ripple`, `[data-reveal]`, `.fade-up` |
+| Booking polish | `.booking-progress` (smooth fill bar), `.slot-tile-pro` (selected state premium gradient) |
+| Package progress | `.pkg-progress` + `.pkg-bar` (+ `.is-low`, `.is-zero` tone) |
+| Dash hero | `.dash-hero` greeting banner (admin + customer) |
+
+### JS micro-interactions
+
+| `frontend.js` | `appointment.js` |
+|---------------|------------------|
+| `initRipple()` — `.ripple` butonlara su damlası efekti | Booking progress bar driver (`data-booking-bar` `width` set) |
+| `initRevealCommonCards()` — `.section, .card-pro, .kpi-pro, .trust-card, .service-card, .team-card, .pkg-card`'lara IntersectionObserver reveal | Premium slot rendering: `.slot-tile-pro` (selected gradient) + stagger fade-up |
+| `initAnimatedCounters()` v3 — `data-suffix`/`data-prefix` desteği (örn. `+`, `★`) | Skeleton block placeholder slot grid'i |
+| `initFadeUp()` — hero için page-load fade entrance | |
+
+### Hero v3 (frontend)
+
+- Yeni `.hero-pro` wrapper'ı, `.hero-orbs` ile **3 animated blur orb** (gradient parallax hissi)
+- Display title: `clamp(2.25rem, 1.4rem + 3.5vw, 4rem)` Manrope 800
+- Live mini-stats: bugün randevu / mutlu müşteri / 4.9★ puan — `data-counter` ile animasyonlu sayım
+- Hero preview card: animated müsait saat chip'leri (`em.hot` gradient) + KVKK güven satırı
+- Live strip: "son 1 saatte X kişi rezerve etti" — animated counter
+
+### Booking flow v3 (modal stepper)
+
+- Üstte **shiny linear progress bar** (`.booking-progress`) — step başına %16.66 smooth fill
+- Slot'lar `.slot-tile-pro` ile: tabular numerals, hover lift, selected gradient, stagger fade-in
+- Loading state: `.skeleton-block` slot grid (10 placeholder)
+- Boş state: `.empty-state-pro` ile ikon + başlık + alt mesaj
+
+### Dashboard v3
+
+**Admin dashboard:**
+- `.dash-hero` greeting banner: tarih + selam + bugün özeti
+- `.alert-pro--warn` "Onay bekleyen N randevu" uyarı banner'ı
+- `.alert-pro--info` "N paketin seansı azalıyor" hatırlatıcı
+- KPI grid + `data-counter` animated values
+
+**Customer dashboard:**
+- `.customer-hero-card` greeting + yaklaşan randevu highlight
+- `.alert-pro--warn` bekleyen ödeme uyarısı
+- `.alert-pro--info` e-posta doğrulama hatırlatması
+- Paketler: `.pkg-progress` görsel ilerleme + "is-low" / "is-zero" tone — son seans uyarısı
+
+### Mobile UX hardening
+
+- Filter bar'lar mobilde dikey stack
+- Input `font-size: 16px` (iOS zoom önleme)
+- `.sticky-cta-mobile` helper (alt sabit eylem barı, safe-area-inset)
+- Admin/customer content padding mobilde küçülür
+- `[data-table-cards]` ile satır → kart auto dönüşüm (her `<td>` `data-label` ile)
+
+### Tasarım garantileri
+
+- Tüm panellerde aynı renk paletinden gelen tek typography ramp
+- Tüm kartlarda aynı hover lift / border-radius / shadow hissi
+- Tüm boş ekranlar `.empty-state-pro` aliasıyla aynı görünür
+- Tüm sayısal alanlar `tabular-nums` (kayma yok)
+- Tüm interaktif kartlar `[data-reveal]` ile sayfaya akıyor
+- `prefers-reduced-motion` kullanıcısına saygı: animasyonlar disable
+
+---
+
 ## UI/UX Polish v2 — Unified Design Language
 
 Tüm ekranlar (frontend, admin, customer) **tek bir design language** altında birleştirildi. v1'de bırakılan tutarsızlıklar tek tek kapatıldı:

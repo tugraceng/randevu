@@ -37,6 +37,10 @@ $customer_packages = $customer_packages ?? [];
                     <!-- MAIN ============================================== -->
                     <div class="stepper-main">
 
+                        <div class="booking-progress" aria-hidden="true">
+                            <span data-booking-bar style="width: 16.66%;"></span>
+                        </div>
+
                         <div class="stepper-progress">
                             <div class="step active"><span class="step-num">1</span><span>Hizmet</span></div>
                             <div class="step"><span class="step-num">2</span><span>Personel</span></div>

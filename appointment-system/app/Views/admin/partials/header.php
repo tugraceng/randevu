@@ -48,10 +48,12 @@ $sectionLabels = [
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="<?= base_url('assets/css/tokens.css') ?>" rel="stylesheet">
     <link href="<?= base_url('assets/css/admin.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/css/polish.css') ?>" rel="stylesheet">
 </head>
-<body class="admin-body">
+<body class="admin-body ps-context">
 <div class="admin-overlay" id="sidebarOverlay"></div>
 <div class="admin-shell">
     <aside class="admin-sidebar" id="adminSidebar">

@@ -1,5 +1,10 @@
 <?php require APP_PATH . '/Views/admin/partials/header.php';
 
+$adminUser = admin_user();
+$adminName = $adminUser['name'] ?? $adminUser['username'] ?? 'Admin';
+$hour = (int) date('H');
+$greet = $hour < 6 ? 'İyi geceler' : ($hour < 12 ? 'Günaydın' : ($hour < 18 ? 'İyi günler' : 'İyi akşamlar'));
+
 $kpis = [
     ['label' => 'Bugünkü Randevu',   'value' => (int)($stats['today'] ?? 0),            'icon' => 'bi-calendar-day',         'tone' => '',          'trend' => '+12%', 'up' => true],
     ['label' => 'Bekleyen',          'value' => (int)($stats['pending'] ?? 0),          'icon' => 'bi-hourglass-split',      'tone' => 'k-warning', 'trend' => null,   'up' => true],
@@ -15,6 +20,44 @@ $kpis = [
     ['label' => 'WhatsApp (Ay)',     'value' => (int)($stats['whatsapp_sent'] ?? 0),    'icon' => 'bi-whatsapp',             'tone' => 'k-success', 'trend' => null,   'up' => true],
 ];
 ?>
+
+<div class="dash-hero" data-reveal>
+    <div class="dash-hero__left">
+        <span class="dash-hero__eyebrow"><?= e(date('l, d F Y', strtotime(date('Y-m-d')))) ?></span>
+        <h2 class="dash-hero__title"><?= e($greet) ?>, <?= e($adminName) ?> 👋</h2>
+        <p class="dash-hero__sub">Bugün için <strong><?= (int)($stats['today'] ?? 0) ?></strong> randevu planlanmış, <strong><?= (int)($stats['pending'] ?? 0) ?></strong> tanesi onay bekliyor.</p>
+    </div>
+    <div class="dash-hero__right">
+        <a href="<?= admin_url('?route=appointments/create') ?>" class="btn-pro btn-pro--primary btn-pro--lg ripple">
+            <i class="bi bi-calendar-plus"></i> Yeni Randevu
+        </a>
+        <a href="<?= admin_url('?route=appointments/calendar') ?>" class="btn-pro btn-pro--ghost btn-pro--lg">
+            <i class="bi bi-calendar3"></i> Takvim
+        </a>
+    </div>
+</div>
+
+<?php if (!empty($stats['pending']) && (int)$stats['pending'] > 0): ?>
+<div class="alert-pro alert-pro--warn mb-4" data-reveal>
+    <span class="alert-pro__icon"><i class="bi bi-bell"></i></span>
+    <div class="alert-pro__body flex-grow-1">
+        <strong>Onay bekleyen <?= (int)$stats['pending'] ?> randevu var</strong>
+        <small>Müşteri deneyimi için randevuları zamanında onaylayın.</small>
+    </div>
+    <a href="<?= admin_url('?route=appointments&status=pending') ?>" class="btn-pro btn-pro--soft btn-pro--sm align-self-center">İncele</a>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($stats['critical_sessions']) && (int)$stats['critical_sessions'] > 0): ?>
+<div class="alert-pro alert-pro--info mb-4" data-reveal>
+    <span class="alert-pro__icon"><i class="bi bi-box-seam"></i></span>
+    <div class="alert-pro__body flex-grow-1">
+        <strong><?= (int)$stats['critical_sessions'] ?> paketin seansı azalıyor</strong>
+        <small>Yenileme önerisi gönderme zamanı — kampanya/şablon mesajı tetikleyin.</small>
+    </div>
+    <a href="<?= admin_url('?route=packages') ?>" class="btn-pro btn-pro--soft btn-pro--sm align-self-center">Paketler</a>
+</div>
+<?php endif; ?>
 
 <div class="kpi-grid">
     <?php foreach ($kpis as $kpi): $isInt = is_int($kpi['value']); ?>
